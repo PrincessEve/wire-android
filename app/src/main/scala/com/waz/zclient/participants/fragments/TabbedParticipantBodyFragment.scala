@@ -33,7 +33,6 @@ import com.waz.utils._
 import com.waz.zclient.common.controllers.{BrowserController, ThemeController, UserAccountsController}
 import com.waz.zclient.conversation.ConversationController
 import com.waz.zclient.core.stores.conversation.ConversationChangeRequester
-import com.waz.zclient.pages.BaseFragment
 import com.waz.zclient.pages.main.conversation.controller.IConversationScreenController
 import com.waz.zclient.participants.{ParticipantOtrDeviceAdapter, ParticipantsController, TabbedParticipantPagerAdapter}
 import com.waz.zclient.ui.views.tab.TabIndicatorLayout
@@ -42,8 +41,7 @@ import com.waz.zclient.utils.ViewUtils
 import com.waz.zclient.views.menus.FooterMenuCallback
 import com.waz.zclient.{BaseActivity, FragmentHelper, R}
 
-class TabbedParticipantBodyFragment extends BaseFragment[TabbedParticipantBodyFragment.Container]
-  with FragmentHelper {
+class TabbedParticipantBodyFragment extends FragmentHelper {
   import Threading.Implicits.Ui
   implicit def ctx: Context = getActivity
 
@@ -83,7 +81,7 @@ class TabbedParticipantBodyFragment extends BaseFragment[TabbedParticipantBodyFr
       case (false, convId) => screenController.showConversationMenu(false, convId)
       case (true, convId) if userAccountsController.hasRemoveConversationMemberPermission(convId) =>
         participantsController.otherParticipant.head.foreach {
-          case Some(userId) => getContainer.showRemoveConfirmation(userId)
+          case Some(userId) => participantsController.showRemoveConfirmation(userId)
           case _            =>
         }
       case _ =>
@@ -174,9 +172,4 @@ object TabbedParticipantBodyFragment {
         _.putInt(ARG__FIRST__PAGE, firstPage)
       })
     }
-
-  trait Container {
-    def showRemoveConfirmation(userId: UserId): Unit
-  }
-
 }

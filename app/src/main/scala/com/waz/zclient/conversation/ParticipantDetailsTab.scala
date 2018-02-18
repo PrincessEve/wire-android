@@ -47,7 +47,7 @@ class ParticipantDetailsTab(val context: Context, callback: FooterMenuCallback) 
   private val participantsController = inject[ParticipantsController]
   private val userAccountsController = inject[UserAccountsController]
 
-  private val imageView = findById[ImageView](R.id.iaiv__single_participant)
+  private val imageView = findById[ImageView](R.id.chathead)
 
   private val footerMenu = returning(findById[FooterMenu](R.id.fm__footer)) {
     _.setCallback(callback)

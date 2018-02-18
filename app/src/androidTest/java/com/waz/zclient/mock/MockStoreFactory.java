@@ -21,21 +21,17 @@ import com.waz.zclient.core.stores.IStoreFactory;
 import com.waz.zclient.core.stores.api.IZMessagingApiStore;
 import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.core.stores.conversation.IConversationStore;
-import com.waz.zclient.core.stores.draft.IDraftStore;
 import com.waz.zclient.core.stores.inappnotification.IInAppNotificationStore;
 import com.waz.zclient.core.stores.network.INetworkStore;
 import com.waz.zclient.core.stores.participants.IParticipantsStore;
 import com.waz.zclient.core.stores.pickuser.IPickUserStore;
 import com.waz.zclient.core.stores.profile.IProfileStore;
-import com.waz.zclient.core.stores.singleparticipants.ISingleParticipantStore;
 import com.waz.zclient.core.stores.stub.StubConnectStore;
-import com.waz.zclient.core.stores.stub.StubDraftStore;
 import com.waz.zclient.core.stores.stub.StubInAppNotificationStore;
 import com.waz.zclient.core.stores.stub.StubNetworkStore;
 import com.waz.zclient.core.stores.stub.StubParticipantsStore;
 import com.waz.zclient.core.stores.stub.StubPickUserStore;
 import com.waz.zclient.core.stores.stub.StubProfileStore;
-import com.waz.zclient.core.stores.stub.StubSingleParticipantStore;
 import com.waz.zclient.core.stores.stub.StubZMessagingApiStore;
 
 import static org.mockito.Mockito.spy;
@@ -44,8 +40,6 @@ public class MockStoreFactory implements IStoreFactory {
   protected IZMessagingApiStore zMessagingApiStore = spy(StubZMessagingApiStore.class);
 
   protected IConnectStore connectStore = spy(StubConnectStore.class);
-
-  protected IDraftStore draftStore = spy(StubDraftStore.class);
 
   protected IInAppNotificationStore inAppNotificationStore = spy(StubInAppNotificationStore.class);
 
@@ -56,8 +50,6 @@ public class MockStoreFactory implements IStoreFactory {
   protected IPickUserStore pickUserStore = spy(StubPickUserStore.class);
 
   protected IProfileStore profileStore = spy(StubProfileStore.class);
-
-  protected ISingleParticipantStore singleParticipantStore = spy(StubSingleParticipantStore.class);
 
   @Override
   public IProfileStore profileStore() {
@@ -70,18 +62,8 @@ public class MockStoreFactory implements IStoreFactory {
   }
 
   @Override
-  public IDraftStore draftStore() {
-    return draftStore;
-  }
-
-  @Override
   public IZMessagingApiStore zMessagingApiStore() {
     return zMessagingApiStore;
-  }
-
-  @Override
-  public ISingleParticipantStore singleParticipantStore() {
-    return singleParticipantStore;
   }
 
   @Override

@@ -46,7 +46,7 @@
             >
 
             <com.waz.zclient.views.e2ee.ShieldView
-                android:id="@+id/sv__otr__verified_shield"
+                android:id="@+id/verified_shield"
                 android:layout_width="@dimen/wire__icon_button__diameter"
                 android:layout_height="@dimen/wire__icon_button__diameter"
                 android:layout_marginEnd="@dimen/wire__padding__8"

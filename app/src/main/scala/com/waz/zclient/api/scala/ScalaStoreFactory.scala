@@ -36,8 +36,6 @@ class ScalaStoreFactory(context: Context) extends StoreFactory {
 
   protected def createParticipantsStore = new ScalaParticipantsStore
 
-  protected def createSingleParticipantStore = new ScalaSingleParticipantStore
-
   protected def createInAppNotificationStore = new ScalaInAppNotificationStore(zMessagingApiStore.getApi)
 
   def createConnectStore = new ScalaConnectStore(context, zMessagingApiStore.getApi)

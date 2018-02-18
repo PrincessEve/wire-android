@@ -25,7 +25,6 @@ import com.waz.zclient.core.stores.network.INetworkStore
 import com.waz.zclient.core.stores.participants.IParticipantsStore
 import com.waz.zclient.core.stores.pickuser.IPickUserStore
 import com.waz.zclient.core.stores.profile.IProfileStore
-import com.waz.zclient.core.stores.singleparticipants.ISingleParticipantStore
 
 trait IStoreFactory {
   def tearDown(): Unit
@@ -46,8 +45,6 @@ trait IStoreFactory {
 
   /* managing the participants view (old meta view) */
   def participantsStore: IParticipantsStore
-
-  def singleParticipantStore: ISingleParticipantStore
 
   /* In App notification store (chathead, knocks) */
   def inAppNotificationStore: IInAppNotificationStore

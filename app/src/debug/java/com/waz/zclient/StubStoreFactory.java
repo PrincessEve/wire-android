@@ -26,7 +26,6 @@ import com.waz.zclient.core.stores.network.INetworkStore;
 import com.waz.zclient.core.stores.participants.IParticipantsStore;
 import com.waz.zclient.core.stores.pickuser.IPickUserStore;
 import com.waz.zclient.core.stores.profile.IProfileStore;
-import com.waz.zclient.core.stores.singleparticipants.ISingleParticipantStore;
 import com.waz.zclient.core.stores.stub.StubZMessagingApiStore;
 
 /**
@@ -66,11 +65,6 @@ public class StubStoreFactory implements IStoreFactory {
 
     @Override
     public IParticipantsStore participantsStore() {
-        return null;
-    }
-
-    @Override
-    public ISingleParticipantStore singleParticipantStore() {
         return null;
     }
 

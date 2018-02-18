@@ -194,13 +194,6 @@ public class ConversationScreenController implements IConversationScreenControll
     }
 
     @Override
-    public void showOtrClient(OtrClient otrClient, User user) {
-        for (ConversationScreenControllerObserver observer : conversationScreenControllerObservers) {
-            observer.onShowOtrClient(otrClient, user);
-        }
-    }
-
-    @Override
     public void showCurrentOtrClient() {
         for (ConversationScreenControllerObserver observer : conversationScreenControllerObservers) {
             observer.onShowCurrentOtrClient();

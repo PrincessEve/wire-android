@@ -20,14 +20,14 @@
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:id="@+id/fl__send_connect_request__background_container"
+              android:id="@+id/background_container"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               style="?wireBackground"
     >
 
     <LinearLayout
-        android:id="@+id/ll__single_participant__header_container"
+        android:id="@+id/header_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -35,7 +35,7 @@
         >
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/t__single_participant__toolbar"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:clickable="true"
@@ -52,7 +52,7 @@
                 >
 
                 <com.waz.zclient.views.e2ee.ShieldView
-                    android:id="@+id/sv__otr__verified_shield"
+                    android:id="@+id/verified_shield"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/wire__otr__shield__small_width"
                     android:layout_marginEnd="@dimen/wire__padding__8"
@@ -60,7 +60,7 @@
                     />
 
                 <com.waz.zclient.ui.text.TypefaceTextView
-                    android:id="@+id/tv__single_participant__toolbar__title"
+                    android:id="@+id/toolbar__title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/wire__padding__regular"
@@ -76,7 +76,7 @@
         </android.support.v7.widget.Toolbar>
 
         <com.waz.zclient.common.views.UserDetailsView
-            android:id="@+id/udv__single_participant__user_details"
+            android:id="@+id/user_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/wire__padding__small"
@@ -87,13 +87,13 @@
 
 
     <FrameLayout
-        android:id="@+id/fl__participant__tab__container"
+        android:id="@+id/tab__container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
-    <com.waz.zclient.views.images.ImageAssetImageView
-        android:id="@+id/iaiv__single_participant"
+    <com.waz.zclient.common.views.ChatheadView
+        android:id="@+id/chathead"
         android:layout_width="@dimen/profile__image__width"
         android:layout_height="@dimen/profile__image__height"
         android:layout_gravity="center"
@@ -101,13 +101,14 @@
 
     <!-- Footer with left & right actions -->
     <com.waz.zclient.views.menus.FooterMenu
-        android:id="@+id/upm__footer"
+        android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:leftActionText="@string/glyph__conversation"
         app:rightActionText="@string/glyph__minus"
         android:paddingBottom="@dimen/wire__padding__small"
+        android:visibility="gone"
         />
 
 </FrameLayout>

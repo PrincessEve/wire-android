@@ -321,15 +321,11 @@ class ConversationManagerFragment extends BaseFragment[Container] with FragmentH
 
   override def onHeaderViewMeasured(participantHeaderHeight: Int): Unit = {}
 
-  override def onScrollParticipantsList(verticalOffset: Int, scrolledToBottom: Boolean): Unit = {}
-
   override def onHideUser(): Unit = {}
 
   override def onAddPeopleToConversation(): Unit = {}
 
   override def onShowConversationMenu(inConvList: Boolean, convId: ConvId): Unit = {}
-
-  override def onShowOtrClient(otrClient: OtrClient, user: User): Unit = {}
 
   override def onShowCurrentOtrClient(): Unit = {}
 

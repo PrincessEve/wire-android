@@ -455,15 +455,11 @@ class ConversationListManagerFragment extends Fragment
 
   override def onHeaderViewMeasured(participantHeaderHeight: Int) = {}
 
-  override def onScrollParticipantsList(verticalOffset: Int, scrolledToBottom: Boolean) = {}
-
   override def onShowUser(userId: UserId): Unit = {}
 
   override def onHideUser() = {}
 
   override def onAddPeopleToConversation() = {}
-
-  override def onShowOtrClient(otrClient: OtrClient, user: User) = {}
 
   override def onShowCurrentOtrClient() = {}
 

@@ -122,7 +122,7 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
         headerReadOnlyTextView = ViewUtils.getView(rootView, R.id.ttv__participants__header);
         headerEditText = ViewUtils.getView(rootView, R.id.taet__participants__header__editable);
         bottomBorder = ViewUtils.getView(rootView, R.id.v_participants__header__bottom_border);
-        shieldView = ViewUtils.getView(rootView, R.id.sv__otr__verified_shield);
+        shieldView = ViewUtils.getView(rootView, R.id.verified_shield);
 
         penIcon = ViewUtils.getView(rootView, R.id.gtv__participants_header__pen_icon);
         penIcon.setVisibility(View.GONE);
@@ -425,18 +425,6 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
     }
 
     @Override
-    public void onScrollParticipantsList(int verticalOffset, boolean scrolledToBottom) {
-        if (bottomBorder == null) {
-            return;
-        }
-        if (verticalOffset > 0) {
-            bottomBorder.setVisibility(View.VISIBLE);
-        } else {
-            bottomBorder.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
     public void onShowUser(UserId userId) {
 
     }
@@ -453,11 +441,6 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
 
     @Override
     public void onShowConversationMenu(boolean inConvList, ConvId convId) {
-
-    }
-
-    @Override
-    public void onShowOtrClient(OtrClient otrClient, User user) {
 
     }
 

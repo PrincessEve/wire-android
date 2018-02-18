@@ -27,15 +27,13 @@ import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.LinearLayout
 import com.waz.ZLog.ImplicitTag._
 import com.waz.api.{NetworkMode, User}
-import com.waz.model.{ConvId, UserData, UserId}
+import com.waz.model.{UserData, UserId}
 import com.waz.service.ZMessaging
 import com.waz.threading.Threading
 import com.waz.utils._
 import com.waz.utils.events._
 import com.waz.zclient.common.controllers.UserAccountsController
 import com.waz.zclient.conversation.ConversationController
-import com.waz.zclient.core.stores.connect.IConnectStore
-import com.waz.zclient.core.stores.conversation.ConversationChangeRequester
 import com.waz.zclient.core.stores.network.NetworkAction
 import com.waz.zclient.integrations.IntegrationDetailsController
 import com.waz.zclient.pages.BaseFragment
@@ -51,8 +49,6 @@ class ParticipantsBodyFragment extends BaseFragment[ParticipantsBodyFragment.Con
 
   implicit def ctx: Context = getActivity
   import Threading.Implicits.Ui
-
-  private var userRequester: IConnectStore.UserRequester = _
 
   private lazy val zms                          = inject[Signal[ZMessaging]]
   private lazy val convController               = inject[ConversationController]
@@ -89,28 +85,20 @@ class ParticipantsBodyFragment extends BaseFragment[ParticipantsBodyFragment.Con
 
   private lazy val footerMenuCallback = new FooterMenuCallback() {
     override def onLeftActionClicked(): Unit = {
-      val user = getStoreFactory.singleParticipantStore.getUser
-      if (userRequester == IConnectStore.UserRequester.POPOVER && user.isMe) {
-        convScreenController.hideParticipants(true, false)
-        // Go to conversation with this user
-        pickUserController.hidePickUserWithoutAnimations(getContainer.getCurrentPickerDestination)
-        convController.selectConv(new ConvId(user.getConversation.getId), ConversationChangeRequester.CONVERSATION_LIST)
-      } else {
-        (for {
-          conv    <- participantsController.conv.head
-          isGroup <- participantsController.isGroup.head
-        } yield (conv.id, conv.isActive, isGroup)).foreach {
-          case (convId, true, true) if userAccountsController.hasAddConversationMemberPermission(convId) =>
-            convScreenController.addPeopleToConversation()
-          case _ =>
-        }
+      (for {
+        conv    <- participantsController.conv.head
+        isGroup <- participantsController.isGroup.head
+      } yield (conv.id, conv.isActive, isGroup)).foreach {
+        case (convId, true, true) if userAccountsController.hasAddConversationMemberPermission(convId) =>
+          convScreenController.addPeopleToConversation()
+        case _ =>
       }
     }
 
     override def onRightActionClicked(): Unit = getStoreFactory.networkStore.doIfHasInternetOrNotifyUser(new NetworkAction() {
       override def execute(networkMode: NetworkMode): Unit =
         participantsController.conv.head.foreach { conv =>
-          if (conv.isActive && userRequester != IConnectStore.UserRequester.POPOVER)
+          if (conv.isActive)
             convScreenController.showConversationMenu(false, conv.id)
         }
 
@@ -190,23 +178,6 @@ class ParticipantsBodyFragment extends BaseFragment[ParticipantsBodyFragment.Con
       fm.setRightActionText(getString(R.string.glyph__more))
       fm.setCallback(footerMenuCallback)
     }
-
-    participantStoreSub = Option(participantsController.otherParticipant.map {
-      case Some(userId) => Option(getOldUserAPI(userId))
-      case _            => None
-    }.onUi {
-      case Some(user) => getStoreFactory.singleParticipantStore.setUser(user)
-      case _          =>
-    })
-  }
-
-  override def onStart(): Unit = {
-    super.onStart()
-    if (userRequester == IConnectStore.UserRequester.POPOVER) {
-      getStoreFactory.connectStore.loadUser(
-        getStoreFactory.singleParticipantStore.getUser.getId, userRequester
-      )
-    }
   }
 
   override def onDestroyView() = {
@@ -223,8 +194,6 @@ object ParticipantsBodyFragment {
     new ParticipantsBodyFragment
 
   trait Container {
-
-    def showRemoveConfirmation(userId: UserId): Unit
 
     def getCurrentPickerDestination: IPickUserController.Destination
   }

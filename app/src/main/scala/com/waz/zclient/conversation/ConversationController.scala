@@ -103,11 +103,6 @@ class ConversationController(implicit injector: Injector, context: Context, ec: 
   def loadConv(convId: ConvId): Future[Option[ConversationData]] =
     zms.map(_.convsStorage).head.flatMap(_.get(convId))
 
-  def getOrCreateConv(userId: UserId): Future[ConversationData] = for {
-    z <- zms.head
-    conv <- z.convsUi.getOrCreateOneToOneConversation(userId)
-  } yield conv
-
   def isGroup(id: ConvId): Future[Boolean] =
     zms.map(_.conversations).head.flatMap(_.isGroupConversation(id))
 

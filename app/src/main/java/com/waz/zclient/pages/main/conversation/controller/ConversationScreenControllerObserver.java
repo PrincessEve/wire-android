@@ -36,8 +36,6 @@ public interface ConversationScreenControllerObserver {
 
     void onHeaderViewMeasured(int participantHeaderHeight);
 
-    void onScrollParticipantsList(int verticalOffset, boolean scrolledToBottom);
-
     void onShowUser(UserId userId);
 
     void onHideUser();
@@ -45,8 +43,6 @@ public interface ConversationScreenControllerObserver {
     void onAddPeopleToConversation();
 
     void onShowConversationMenu(boolean inConvList, ConvId convId);
-
-    void onShowOtrClient(OtrClient otrClient, User user);
 
     void onShowCurrentOtrClient();
 

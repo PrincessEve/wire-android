@@ -126,7 +126,7 @@ public class SendConnectRequestFragment extends BaseFragment<SendConnectRequestF
         imageAssetImageViewProfile.setDisplayType(ImageAssetImageView.DisplayType.CIRCLE);
         imageAssetImageViewProfile.setSaturation(0);
 
-        View backgroundContainer = ViewUtils.getView(rootView, R.id.fl__send_connect_request__background_container);
+        View backgroundContainer = ViewUtils.getView(rootView, R.id.background_container);
         backgroundContainer.setClickable(true);
         if (userRequester == IConnectStore.UserRequester.PARTICIPANTS &&
             getControllerFactory().getConversationScreenController().getPopoverLaunchMode() != DialogLaunchMode.AVATAR &&
