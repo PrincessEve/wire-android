@@ -19,17 +19,15 @@ package com.waz.zclient.pages.main.participants;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.widget.TextView;
 import com.waz.api.NetworkMode;
 import com.waz.api.User;
-import com.waz.api.Verification;
 import com.waz.model.ConvId;
 import com.waz.model.UserId;
+import com.waz.utils.wrappers.AndroidURIUtil;
 import com.waz.zclient.BaseActivity;
 import com.waz.zclient.OnBackPressedListener;
 import com.waz.zclient.R;
@@ -52,10 +50,8 @@ import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
 import com.waz.zclient.participants.fragments.TabbedParticipantBodyFragment;
 import com.waz.zclient.ui.animation.fragment.FadeAnimation;
 import com.waz.zclient.ui.theme.OptionsTheme;
-import com.waz.zclient.ui.theme.ThemeUtils;
 import com.waz.zclient.utils.ContextUtils;
 import com.waz.zclient.utils.ViewUtils;
-import com.waz.zclient.views.e2ee.ShieldView;
 import com.waz.zclient.views.images.ImageAssetImageView;
 import com.waz.zclient.views.menus.FooterMenu;
 import com.waz.zclient.views.menus.FooterMenuCallback;
@@ -71,9 +67,6 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
     private static final String SAVE_STATE_OTHER_USER_PROFILE_SCREEN_WAS_TRACKED = "SAVE_STATE_OTHER_USER_PROFILE_SCREEN_WAS_TRACKED";
     private static final String ARGUMENT_USER_REQUESTER = "ARGUMENT_USER_REQUESTER";
 
-    private TextView header;
-    private ShieldView shieldView;
-    private UserDetailsView userDetailsView;
     private boolean goToConversationWithUser;
     private FooterMenu footerMenu;
     private boolean otherUserProfileScreenWasTracked;
@@ -132,17 +125,12 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
     public View onCreateView(LayoutInflater inflater, ViewGroup viewGroup, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_participants_single, viewGroup, false);
 
-        Toolbar toolbar = ViewUtils.getView(view, R.id.t__single_participant__toolbar);
-        shieldView = ViewUtils.getView(view, R.id.sv__otr__verified_shield);
-
         Bundle args = getArguments();
         IConnectStore.UserRequester requester = null;
         if (args != null) {
             requester = (IConnectStore.UserRequester) args.getSerializable(ARGUMENT_USER_REQUESTER);
         }
 
-        header = ViewUtils.getView(view, R.id.tv__single_participant__toolbar__title);
-        userDetailsView = ViewUtils.getView(view, R.id.udv__single_participant__user_details);
         footerMenu = ViewUtils.getView(view, R.id.upm__footer);
         imageAssetImageViewProfile = ViewUtils.getView(view, R.id.iaiv__single_participant);
         imageAssetImageViewProfile.setDisplayType(ImageAssetImageView.DisplayType.CIRCLE);
@@ -155,21 +143,6 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
                                           TabbedParticipantBodyFragment.newInstance(TabbedParticipantBodyFragment.USER_PAGE()),
                                           TabbedParticipantBodyFragment.TAG())
                                      .commit();
-
-
-            // Posting so that we can get height after onMeasure has been called
-            view.post(new Runnable() {
-                @Override
-                public void run() {
-                    View header = ViewUtils.getView(view, R.id.ll__single_participant__header_container);
-                    View tabContainer = ViewUtils.getView(view, R.id.fl__participant__tab__container);
-                    if (header == null || tabContainer == null) {
-                        return;
-                    }
-                    int height = header.getHeight();
-                    tabContainer.setPadding(0, height, 0, 0);
-                }
-            });
         }
 
         View backgroundContainer = ViewUtils.getView(view, R.id.fl__send_connect_request__background_container);
@@ -180,18 +153,6 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
         } else {
             backgroundContainer.setBackgroundColor(Color.TRANSPARENT);
         }
-
-        if (ThemeUtils.isDarkTheme(getContext())) {
-            toolbar.setNavigationIcon(R.drawable.action_back_light);
-        } else {
-            toolbar.setNavigationIcon(R.drawable.action_back_dark);
-        }
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getContainer().dismissSingleUserProfile();
-            }
-        });
 
         // Hide footer until user is loaded
         footerMenu.setVisibility(View.GONE);
@@ -233,7 +194,6 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
         }
 
         imageAssetImageViewProfile = null;
-        header = null;
         footerMenu = null;
         super.onDestroyView();
     }
@@ -254,11 +214,6 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
         Timber.i("onUserUpdated(%s)", user.getName());
 
         imageAssetImageViewProfile.connectImageAsset(user.getPicture());
-
-        header.setText(user.getDisplayName());
-        userDetailsView.setUser(user);
-
-        shieldView.setVisibility(user.getVerified() == Verification.VERIFIED ? View.VISIBLE : View.GONE);
 
         // Show footer if profile is not for self user
         if (!user.isMe()) {

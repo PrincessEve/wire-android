@@ -19,18 +19,15 @@ package com.waz.zclient.pages.main.connect;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.widget.TextView;
 import com.waz.api.IConversation;
 import com.waz.api.User;
 import com.waz.model.UserId;
 import com.waz.zclient.R;
 import com.waz.zclient.common.controllers.UserAccountsController;
-import com.waz.zclient.common.views.UserDetailsView;
 import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.conversation.ConversationController;
 import com.waz.zclient.core.stores.connect.ConnectStoreObserver;
@@ -38,7 +35,6 @@ import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.pages.main.participants.ProfileAnimation;
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
-import com.waz.zclient.ui.theme.ThemeUtils;
 import com.waz.zclient.ui.utils.KeyboardUtils;
 import com.waz.zclient.ui.views.ZetaButton;
 import com.waz.zclient.utils.ContextUtils;
@@ -57,9 +53,6 @@ public class SendConnectRequestFragment extends BaseFragment<SendConnectRequestF
     private String userId;
     private IConnectStore.UserRequester userRequester;
 
-    // Flag true if layout has been set
-    private TextView displayNameTextView;
-    private UserDetailsView userDetailsView;
     private ZetaButton connectButton;
     private FooterMenu footerMenu;
     private ImageAssetImageView imageAssetImageViewProfile;
@@ -117,9 +110,6 @@ public class SendConnectRequestFragment extends BaseFragment<SendConnectRequestF
             userId = savedInstanceState.getString(ARGUMENT_USER_ID);
             userRequester = IConnectStore.UserRequester.valueOf(savedInstanceState.getString(ARGUMENT_USER_REQUESTER));
         }
-        Toolbar toolbar = ViewUtils.getView(rootView, R.id.t__send_connect__toolbar);
-        displayNameTextView = ViewUtils.getView(rootView, R.id.tv__send_connect__toolbar__title);
-        userDetailsView = ViewUtils.getView(rootView, R.id.udv__send_connect__user_details);
         connectButton = ViewUtils.getView(rootView, R.id.zb__send_connect_request__connect_button);
         footerMenu = ViewUtils.getView(rootView, R.id.fm__footer);
         imageAssetImageViewProfile = ViewUtils.getView(rootView, R.id.iaiv__send_connect);
@@ -134,18 +124,6 @@ public class SendConnectRequestFragment extends BaseFragment<SendConnectRequestF
             backgroundContainer.setBackgroundColor(Color.TRANSPARENT);
         }
         connectButton.setText(getResources().getString(R.string.send_connect_request__connect_button__text));
-
-        if (ThemeUtils.isDarkTheme(getContext())) {
-            toolbar.setNavigationIcon(R.drawable.action_back_light);
-        } else {
-            toolbar.setNavigationIcon(R.drawable.action_back_dark);
-        }
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getContainer().dismissUserProfile();
-            }
-        });
 
         footerMenu.setVisibility(View.GONE);
 
@@ -202,9 +180,6 @@ public class SendConnectRequestFragment extends BaseFragment<SendConnectRequestF
         }
 
         imageAssetImageViewProfile.connectImageAsset(user.getPicture());
-
-        displayNameTextView.setText(user.getName());
-        userDetailsView.setUser(user);
 
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
