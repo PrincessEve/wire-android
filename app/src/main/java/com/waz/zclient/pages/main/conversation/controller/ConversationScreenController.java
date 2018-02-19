@@ -98,11 +98,6 @@ public class ConversationScreenController implements IConversationScreenControll
     }
 
     @Override
-    public User getRequestedDeviceTabUser() {
-        return showDevicesTabForUser;
-    }
-
-    @Override
     public boolean isShowingParticipant() {
         return isShowingParticipant;
     }
@@ -113,13 +108,6 @@ public class ConversationScreenController implements IConversationScreenControll
         isShowingUser = false;
         showDevicesTabForUser = null;
         launchMode = null;
-    }
-
-    @Override
-    public void setParticipantHeaderHeight(int participantHeaderHeight) {
-        for (ConversationScreenControllerObserver conversationScreenControllerObserver : conversationScreenControllerObservers) {
-            conversationScreenControllerObserver.onHeaderViewMeasured(participantHeaderHeight);
-        }
     }
 
     @Override

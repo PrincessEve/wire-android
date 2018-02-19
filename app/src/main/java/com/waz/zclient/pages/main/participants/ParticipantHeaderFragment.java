@@ -270,15 +270,7 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
         // Hide header bottom border
         bottomBorder.setVisibility(View.GONE);
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (getView() != null && getContainer() != null) {
-                    final int height = getView().getMeasuredHeight();
-                    getControllerFactory().getConversationScreenController().setParticipantHeaderHeight(height);
-                }
-            }
-        });
+
     }
 
     @Override
@@ -348,12 +340,7 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
         private void closeHeaderEditing() {
             headerEditText.clearFocus();
             final int height = getView().getMeasuredHeight();
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    getControllerFactory().getConversationScreenController().setParticipantHeaderHeight(height);
-                }
-            });
+
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(headerEditText.getWindowToken(), 0);
         }
@@ -420,23 +407,6 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
     }
 
     @Override
-    public void onHeaderViewMeasured(int participantHeaderHeight) {
-
-    }
-
-    @Override
-    public void onScrollParticipantsList(int verticalOffset, boolean scrolledToBottom) {
-        if (bottomBorder == null) {
-            return;
-        }
-        if (verticalOffset > 0) {
-            bottomBorder.setVisibility(View.VISIBLE);
-        } else {
-            bottomBorder.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
     public void onShowUser(UserId userId) {
 
     }
@@ -500,15 +470,7 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
         userDetailsView.setUser(user);
         headerEditText.setVisibility(View.GONE);
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (getView() != null && getControllerFactory().getConversationScreenController() != null) {
-                    final int height = getView().getMeasuredHeight();
-                    getControllerFactory().getConversationScreenController().setParticipantHeaderHeight(height);
-                }
-            }
-        });
+
     }
 
     @Override

@@ -44,7 +44,6 @@ import com.waz.zclient.pages.BaseFragment
 import com.waz.zclient.pages.main.connect.{BlockedUserProfileFragment, ConnectRequestLoadMode, PendingConnectRequestFragment, SendConnectRequestFragment}
 import com.waz.zclient.pages.main.conversation.controller.{ConversationScreenControllerObserver, IConversationScreenController}
 import com.waz.zclient.pages.main.participants._
-import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode
 import com.waz.zclient.pages.main.pickuser.controller.IPickUserController
 import com.waz.zclient.participants.{OptionsMenuFragment, ParticipantsController}
 import com.waz.zclient.ui.animation.interpolators.penner.Expo
@@ -57,7 +56,7 @@ import com.waz.zclient.{FragmentHelper, OnBackPressedListener, R}
 class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] with FragmentHelper
   with ConversationScreenControllerObserver
   with OnBackPressedListener
-  with ParticipantHeaderFragment.Container
+  with ParticipantsHeaderFragment.Container
   with ParticipantsBodyFragment.Container
   with TabbedParticipantBodyFragment.Container
   with SingleParticipantFragment.Container
@@ -117,8 +116,8 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
       fragmentManager.beginTransaction
         .replace(
           R.id.fl__participant__header__container,
-          ParticipantHeaderFragment.newInstance(),
-          ParticipantHeaderFragment.TAG
+          ParticipantsHeaderFragment.newInstance(),
+          ParticipantsHeaderFragment.TAG
         )
         .commit
 
@@ -196,7 +195,9 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
     case Some(f: SingleOtrClientFragment) =>
       screenController.hideOtrClient()
       true
-    case Some(f: SingleParticipantFragment) if f.onBackPressed() => true
+    case Some(f: SingleParticipantFragment) if f.onBackPressed() =>
+      verbose(s"PF single participant user on back pressed")
+      true
     case Some(f: OptionsMenuFragment) if f.close() => true
     case _ if pickUserController.isShowingPickUser(getCurrentPickerDestination) =>
       pickUserController.hidePickUser(getCurrentPickerDestination)
@@ -297,15 +298,16 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
 
   private def openUserProfileFragment(fragment: Fragment, tag: String) = {
     val transaction = getChildFragmentManager.beginTransaction
-    if (
+    // TODO: fix animations
+    /*if (
       screenController.getPopoverLaunchMode != DialogLaunchMode.AVATAR &&
       screenController.getPopoverLaunchMode != DialogLaunchMode.COMMON_USER
     ) {
       animateParticipantsWithConnectUserProfile(false)
       transaction.setCustomAnimations(R.anim.open_profile, R.anim.close_profile, R.anim.open_profile, R.anim.close_profile)
     }
-    else transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
-    transaction.add(R.id.fl__participant__container, fragment, tag).addToBackStack(tag).commit
+    else transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)*/
+    transaction.replace(R.id.fl__participant__container, fragment, tag).addToBackStack(tag).commit
   }
 
   private def animateParticipantsWithConnectUserProfile(show: Boolean) = {
@@ -388,10 +390,6 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
   override def onShowParticipants(anchorView: View, isSingleConversation: Boolean, isMemberOfConversation: Boolean, showDeviceTabIfSingle: Boolean): Unit = {}
 
   override def onHideParticipants(backOrButtonPressed: Boolean, hideByConversationChange: Boolean, isSingleConversation: Boolean): Unit = {}
-
-  override def onHeaderViewMeasured(participantHeaderHeight: Int): Unit = {}
-
-  override def onScrollParticipantsList(verticalOffset: Int, scrolledToBottom: Boolean): Unit = {}
 
   override def onHideOtrClient(): Unit = getChildFragmentManager.popBackStackImmediate
 

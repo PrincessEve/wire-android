@@ -98,8 +98,10 @@
                 android:layout_width="@dimen/wire__icon_button__diameter"
                 android:layout_height="@dimen/wire__icon_button__diameter"
                 android:clickable="true"
+                android:focusable="true"
                 android:text="@string/glyph__edit"
                 android:gravity="center"
+                android:visibility="gone"
                 style="?iconButton"
                 />
 
@@ -112,6 +114,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/wire__padding__small"
+        android:visibility="gone"
         />
 
     <com.waz.zclient.ui.text.TypefaceTextView
@@ -126,6 +129,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         app:w_font="@string/wire__typeface__light"
+        android:visibility="gone"
         style="?userSubHeader"
         />
 
@@ -135,6 +139,7 @@
         android:layout_height="@dimen/wire__divider__height__thin"
         android:layout_gravity="bottom"
         android:background="@color/text__secondary_light__40"
+        android:visibility="gone"
         />
 
 </LinearLayout>

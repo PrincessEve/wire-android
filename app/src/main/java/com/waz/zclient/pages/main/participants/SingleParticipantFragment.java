@@ -19,6 +19,7 @@ package com.waz.zclient.pages.main.participants;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -315,7 +316,9 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
 
     @Override
     public boolean onBackPressed() {
-        return false;
+        Timber.i("PF onBackPressed");
+        getFragmentManager().popBackStackImmediate(SingleParticipantFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        return true;
     }
 
     @Override

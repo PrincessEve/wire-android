@@ -43,13 +43,9 @@ public interface IConversationScreenController {
 
     boolean shouldShowDevicesTab();
 
-    User getRequestedDeviceTabUser();
-
     boolean isShowingParticipant();
 
     void resetToMessageStream();
-
-    void setParticipantHeaderHeight(int participantHeaderHeight);
 
     void setSingleConversation(boolean isSingleConversation);
 
