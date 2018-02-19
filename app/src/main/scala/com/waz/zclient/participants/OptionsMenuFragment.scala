@@ -139,7 +139,7 @@ class OptionsMenu(val context: Context, val attrs: AttributeSet, val defStyleAtt
         val item = items(itemNumber)
 
         row.addView(returning(LayoutInflater.from(getContext).inflate(R.layout.options_menu__item, this, false)) { container =>
-          import OptionsTheme.Type.DARK
+          import OptionsTheme.Type._
           returning(getView[FrameLayout](container, R.id.fl_options_menu_button)) { v =>
             val drawable = (item.isToggled, theme.getType) match {
               case (true,  DARK) => R.drawable.selector__icon_button__background__dark_toggled
@@ -225,7 +225,7 @@ class OptionsMenu(val context: Context, val attrs: AttributeSet, val defStyleAtt
     setOnClickListener(null)
     ctrl.animationState ! Closing
 
-    val duration = getInt(R.integer.wire__animation__duration__regular);
+    val duration = getInt(R.integer.wire__animation__duration__regular)
 
     val menuHeight = menuLayout.getMeasuredHeight
     menuLayout.animate()

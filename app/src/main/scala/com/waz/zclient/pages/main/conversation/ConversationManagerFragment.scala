@@ -65,7 +65,6 @@ import com.waz.zclient.pages.main.pickuser.controller.{IPickUserController, Pick
 import com.waz.zclient.pages.main.profile.camera.{CameraContext, CameraFragment}
 import com.waz.zclient.participants.fragments.{ParticipantFragment, TabbedParticipantBodyFragment}
 import com.waz.zclient.ui.utils.KeyboardUtils
-import com.waz.zclient.utils.LayoutSpec
 import com.waz.zclient.views.{ConversationFragment, LoadingIndicatorView}
 import com.waz.zclient.{FragmentHelper, OnBackPressedListener, R}
 
@@ -185,7 +184,7 @@ class ConversationManagerFragment extends BaseFragment[Container] with FragmentH
   }
 
   override def onShowParticipants(anchorView: View, isSingleConversation: Boolean, isMemberOfConversation: Boolean, showDeviceTabIfSingle: Boolean): Unit = {
-    if (LayoutSpec.isPhone(getContext)) KeyboardUtils.hideKeyboard(getActivity)
+    KeyboardUtils.hideKeyboard(getActivity)
     navigationController.setRightPage(Page.PARTICIPANT, ConversationManagerFragment.Tag)
 
     val fragment = ParticipantFragment.newInstance(IConnectStore.UserRequester.PARTICIPANTS, if (showDeviceTabIfSingle) TabbedParticipantBodyFragment.DEVICE_PAGE else TabbedParticipantBodyFragment.USER_PAGE)
@@ -197,7 +196,7 @@ class ConversationManagerFragment extends BaseFragment[Container] with FragmentH
     getChildFragmentManager.popBackStack(ParticipantFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
   }
 
-  override def onShowUser(userId: UserId): Unit = if (LayoutSpec.isPhone(getContext)) KeyboardUtils.hideKeyboard(getActivity)
+  override def onShowUser(userId: UserId): Unit = KeyboardUtils.hideKeyboard(getActivity)
 
   override def onShowLikesList(message: Message): Unit = showFragment(LikesListFragment.newInstance(message), LikesListFragment.TAG)
 
@@ -262,7 +261,7 @@ class ConversationManagerFragment extends BaseFragment[Container] with FragmentH
   override def onShowPickUser(destination: IPickUserController.Destination): Unit =
     if (destination == IPickUserController.Destination.CURSOR || destination == IPickUserController.Destination.PARTICIPANTS) {
       pickUserDestination = destination
-      if (LayoutSpec.isPhone(getContext)) KeyboardUtils.hideKeyboard(getActivity)
+      KeyboardUtils.hideKeyboard(getActivity)
       navigationController.setRightPage(Page.PICK_USER_ADD_TO_CONVERSATION, ConversationManagerFragment.Tag)
 
       import com.waz.threading.Threading.Implicits.Ui

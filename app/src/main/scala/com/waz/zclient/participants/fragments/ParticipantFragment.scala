@@ -17,7 +17,6 @@
  */
 package com.waz.zclient.participants.fragments
 
-import android.animation.{Animator, AnimatorListenerAdapter, AnimatorSet, ObjectAnimator}
 import android.content.Context
 import android.os.Bundle
 import android.support.annotation.Nullable
@@ -27,12 +26,13 @@ import android.view.{LayoutInflater, View, ViewGroup}
 import com.waz.ZLog.ImplicitTag._
 import com.waz.ZLog._
 import com.waz.api.User.ConnectionStatus._
+import com.waz.api._
 import com.waz.model._
 import com.waz.threading.Threading
 import com.waz.utils.events.Subscription
-import com.waz.api._
 import com.waz.utils.returning
-import com.waz.zclient.common.controllers.{SoundController, ThemeController, UserAccountsController}
+import com.waz.utils.wrappers.AndroidURIUtil
+import com.waz.zclient.common.controllers.{BrowserController, SoundController, ThemeController, UserAccountsController}
 import com.waz.zclient.controllers.confirmation.{ConfirmationRequest, IConfirmationController, TwoButtonConfirmationCallback}
 import com.waz.zclient.controllers.navigation.{INavigationController, Page}
 import com.waz.zclient.controllers.singleimage.ISingleImageController
@@ -45,19 +45,18 @@ import com.waz.zclient.pages.main.connect.{BlockedUserProfileFragment, ConnectRe
 import com.waz.zclient.pages.main.conversation.controller.{ConversationScreenControllerObserver, IConversationScreenController}
 import com.waz.zclient.pages.main.participants._
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode
-import com.waz.zclient.pages.main.pickuser.controller.{IPickUserController, PickUserControllerScreenObserver}
+import com.waz.zclient.pages.main.pickuser.controller.IPickUserController
 import com.waz.zclient.participants.{OptionsMenuFragment, ParticipantsController}
-import com.waz.zclient.ui.animation.interpolators.penner.{Expo, Linear, Quart}
+import com.waz.zclient.ui.animation.interpolators.penner.Expo
 import com.waz.zclient.usersearch.PickUserFragment
 import com.waz.zclient.utils.ContextUtils._
-import com.waz.zclient.utils.{LayoutSpec, RichView, ViewUtils}
+import com.waz.zclient.utils.ViewUtils
 import com.waz.zclient.views.{DefaultPageTransitionAnimation, LoadingIndicatorView}
 import com.waz.zclient.{FragmentHelper, OnBackPressedListener, R}
 
 class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] with FragmentHelper
   with ConversationScreenControllerObserver
   with OnBackPressedListener
-  with PickUserControllerScreenObserver
   with ParticipantHeaderFragment.Container
   with ParticipantsBodyFragment.Container
   with TabbedParticipantBodyFragment.Container
@@ -89,14 +88,10 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
   private lazy val singleImageController  = inject[ISingleImageController]
   private lazy val navigationController   = inject[INavigationController]
 
-  private lazy val userRequester = {
-    getArguments.getSerializable(ParticipantFragment.ARG_USER_REQUESTER).asInstanceOf[IConnectStore.UserRequester]
-  }
-
   private var subs = Set.empty[Subscription]
 
   override def onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation =
-    if (nextAnim == 0 || Option(getContainer).isEmpty || getControllerFactory.isTornDown || LayoutSpec.isTablet(getActivity))
+    if (nextAnim == 0 || Option(getContainer).isEmpty || getControllerFactory.isTornDown)
       super.onCreateAnimation(transit, enter, nextAnim)
     else new DefaultPageTransitionAnimation(
       0,
@@ -106,11 +101,6 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
       if (enter) getInt(R.integer.framework_animation_duration_medium) else 0,
       1f
     )
-
-  override def onCreate(savedInstanceState: Bundle): Unit = {
-    super.onCreate(savedInstanceState)
-    userRequester
-  }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View =
     returning(inflater.inflate(R.layout.fragment_participant, container, false)) { _ =>
@@ -123,40 +113,29 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
   override def onViewCreated(view: View, @Nullable savedInstanceState: Bundle): Unit = {
     val fragmentManager = getChildFragmentManager
 
-    def showSingle() = fragmentManager.beginTransaction
-      .replace(
-        R.id.fl__participant__container,
-        TabbedParticipantBodyFragment.newInstance(getArguments.getInt(ParticipantFragment.ARG__FIRST__PAGE)),
-        TabbedParticipantBodyFragment.TAG
-      )
-      .commit
-
-    def showGroup() = {
-      val fragment = ParticipantsBodyFragment.newInstance(userRequester)
-      fragment.backgroundClicked.onUi { _ =>
-        if(LayoutSpec.isTablet(getActivity)) participantsController.otherParticipant.head.foreach {
-          case Some(userId) =>
-            bodyContainer.foreach(singleImageController.setViewReferences)
-            singleImageController.showSingleImage(getOldUserAPI(userId))
-          case _ =>
-        }
-      }
-      fragmentManager.beginTransaction.replace(R.id.fl__participant__container, fragment, ParticipantsBodyFragment.TAG).commit
-    }
-
     if (Option(savedInstanceState).isEmpty) {
       fragmentManager.beginTransaction
         .replace(
           R.id.fl__participant__header__container,
-          ParticipantHeaderFragment.newInstance(userRequester),
+          ParticipantHeaderFragment.newInstance(),
           ParticipantHeaderFragment.TAG
         )
         .commit
 
       participantsController.isGroupOrBot.head.foreach {
-        case false                                                     => showSingle()
-        case _ if userRequester == IConnectStore.UserRequester.POPOVER => showSingle()
-        case _                                                         => showGroup()
+        case false =>
+          fragmentManager.beginTransaction
+            .replace(
+              R.id.fl__participant__container,
+              TabbedParticipantBodyFragment.newInstance(getArguments.getInt(ParticipantFragment.ARG__FIRST__PAGE)),
+              TabbedParticipantBodyFragment.TAG)
+            .commit
+        case _ =>
+          fragmentManager.beginTransaction
+            .replace(R.id.fl__participant__container,
+              ParticipantsBodyFragment.newInstance(),
+              ParticipantsBodyFragment.TAG)
+            .commit
       }
 
       fragmentManager.beginTransaction
@@ -195,22 +174,12 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
 
   override def onStart(): Unit = {
     super.onStart()
-
-    if (userRequester == IConnectStore.UserRequester.POPOVER) {
-      val user = getStoreFactory.singleParticipantStore.getUser
-      getStoreFactory.connectStore.loadUser(user.getId, IConnectStore.UserRequester.POPOVER)
-    }
-
-    if (LayoutSpec.isPhone(getActivity)) { // ConversationScreenController is handled in ParticipantDialogFragment for tablets
-      screenController.addConversationControllerObservers(this)
-    }
-    pickUserController.addPickUserScreenControllerObserver(this)
+    screenController.addConversationControllerObservers(this)
   }
 
   override def onStop(): Unit = {
     getStoreFactory.participantsStore.setCurrentConversation(null)
-    if (LayoutSpec.isPhone(getActivity)) screenController.removeConversationControllerObservers(this)
-    pickUserController.removePickUserScreenControllerObserver(this)
+    screenController.removeConversationControllerObservers(this)
     super.onStop()
   }
 
@@ -221,8 +190,6 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
 
     super.onDestroyView()
   }
-
-  override def dismissDialog(): Unit = getContainer.dismissDialog()
 
   override def onBackPressed: Boolean = withBackstackHead {
     case Some(f: PickUserFragment) if f.onBackPressed() => true
@@ -244,7 +211,7 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
   }
 
   override def onShowEditConversationName(show: Boolean): Unit =
-    if (!LayoutSpec.isTablet(getActivity)) bodyContainer.foreach { view =>
+    bodyContainer.foreach { view =>
       if (show) ViewUtils.fadeOutView(view)
       else ViewUtils.fadeInView(view)
     }
@@ -301,8 +268,7 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
         SingleParticipantFragment.newInstance(false, IConnectStore.UserRequester.PARTICIPANTS),
         SingleParticipantFragment.TAG
       )
-      if (LayoutSpec.isPhone(getActivity))
-        navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
+      navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
 
     case Some(_) if userAccountsController.isTeamAccount && userAccountsController.isTeamMember(userId) =>
       showAcceptedUser(userId)
@@ -315,16 +281,14 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
         PendingConnectRequestFragment.newInstance(userId.str, null, ConnectRequestLoadMode.LOAD_BY_USER_ID, IConnectStore.UserRequester.PARTICIPANTS),
         PendingConnectRequestFragment.TAG
       )
-      if (LayoutSpec.isPhone(getActivity))
-        navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
+      navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
 
     case Some(user) if user.connection == BLOCKED =>
       openUserProfileFragment(
         BlockedUserProfileFragment.newInstance(userId.str, IConnectStore.UserRequester.PARTICIPANTS),
         BlockedUserProfileFragment.TAG
       )
-      if (LayoutSpec.isPhone(getActivity))
-        navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
+      navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
 
     case Some(user) if user.connection == CANCELLED || user.connection == UNCONNECTED =>
       openUserProfileFragment(
@@ -343,8 +307,7 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
       SingleParticipantFragment.newInstance(false, IConnectStore.UserRequester.PARTICIPANTS),
       SingleParticipantFragment.TAG
     )
-    if (LayoutSpec.isPhone(getActivity))
-      navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
+    navigationController.setRightPage(Page.PARTICIPANT_USER_PROFILE, ParticipantFragment.TAG)
   }
 
   private def openUserProfileFragment(fragment: Fragment, tag: String) = {
@@ -362,22 +325,15 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
 
   private def animateParticipantsWithConnectUserProfile(show: Boolean) = {
     val animator = participantsContainerView.animate
-    (show, LayoutSpec.isTablet(getActivity)) match {
-      case (true, true) => animator.translationX(0)
-        .setInterpolator(new Expo.EaseOut)
-        .setDuration(getInt(R.integer.framework_animation_duration_long))
-        .setStartDelay(0)
-      case (true, false) => animator.alpha(1)
+    if (show) {
+      animator.alpha(1)
         .scaleY(1)
         .scaleX(1)
         .setInterpolator(new Expo.EaseOut)
         .setDuration(getInt(R.integer.reopen_profile_source__animation_duration))
         .setStartDelay(getInt(R.integer.reopen_profile_source__delay))
-      case (false, true) => animator.translationX(-getDimenPx(R.dimen.participant_dialog__initial_width))
-        .setInterpolator(new Expo.EaseOut)
-        .setDuration(getInt(R.integer.framework_animation_duration_long))
-        .setStartDelay(0)
-      case (false, false) => animator.alpha(0)
+    } else {
+      animator.alpha(0)
         .scaleY(2)
         .scaleX(2)
         .setInterpolator(new Expo.EaseIn)
@@ -389,12 +345,7 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
 
   override def onHideUser(): Unit = if (screenController.isShowingUser) {
     getChildFragmentManager.popBackStackImmediate
-    if (LayoutSpec.isPhone(getActivity)) {
-      val rightPage =
-        if (screenController.isShowingParticipant) Page.PARTICIPANT
-        else Page.MESSAGE_STREAM
-      getControllerFactory.getNavigationController.setRightPage(rightPage, ParticipantFragment.TAG)
-    }
+    getControllerFactory.getNavigationController.setRightPage(if (screenController.isShowingParticipant) Page.PARTICIPANT else Page.MESSAGE_STREAM, ParticipantFragment.TAG)
     animateParticipantsWithConnectUserProfile(true)
   }
 
@@ -425,7 +376,7 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
     }
   }
 
-  override def onOpenUrl(url: String): Unit = getContainer.onOpenUrl(url)
+  override def onOpenUrl(url: String): Unit = inject[BrowserController].openUrl(AndroidURIUtil.parse(url))
 
   override def dismissUserProfile(): Unit = screenController.hideUser()
 
@@ -449,63 +400,6 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
 
   override def getCurrentPickerDestination = IPickUserController.Destination.PARTICIPANTS
 
-  override def onShowPickUser(destination: IPickUserController.Destination): Unit = if (LayoutSpec.isTablet(getActivity)) {
-    if (getCurrentPickerDestination != destination) onHidePickUser(getCurrentPickerDestination)
-    else participantsController.isGroup.head.foreach { groupConversation =>
-      getChildFragmentManager.beginTransaction
-        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-        .add(
-          R.id.fl__add_to_conversation__pickuser__container,
-          PickUserFragment.newInstance(),
-          PickUserFragment.TAG
-        )
-        .addToBackStack(PickUserFragment.TAG)
-        .commit
-
-      participantsContainerView.foreach { view =>
-        val hideParticipantsAnimator = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f)
-        hideParticipantsAnimator.setInterpolator(new Quart.EaseOut)
-        hideParticipantsAnimator.setDuration(getInt(R.integer.framework_animation_duration_medium))
-        hideParticipantsAnimator.addListener(new AnimatorListenerAdapter() {
-          override def onAnimationEnd(animation: Animator): Unit =
-            participantsContainerView.foreach(_.setVisible(false))
-        })
-        hideParticipantsAnimator.start()
-      }
-    }
-  }
-
-  override def onHidePickUser(destination: IPickUserController.Destination): Unit =
-    if (LayoutSpec.isTablet(getActivity) && destination == getCurrentPickerDestination) {
-      // Workaround for animation bug with nested child fragments
-      // Animating fragment container views and then popping stack at end of animation
-      participantsContainerView.foreach { view =>
-        view.setAlpha(0)
-        view.setVisible(true)
-
-        val hidePickUserAnimator = returning(ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0f)) { animator =>
-          animator.setInterpolator(new Linear.EaseIn)
-          animator.addListener(new AnimatorListenerAdapter() {
-            override def onAnimationEnd(animation: Animator): Unit = if (isResumed) {
-              getChildFragmentManager.popBackStackImmediate(PickUserFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-              pickUserContainerView.foreach(_.setAlpha(1f))
-            }
-          })
-        }
-
-        val showParticipantsAnimator = returning(ObjectAnimator.ofFloat(participantsContainerView.get, View.ALPHA, 0f, 1f)) { animator =>
-          animator.setInterpolator(new Quart.EaseOut)
-          animator.setDuration(getInt(R.integer.framework_animation_duration_medium))
-          animator.setStartDelay(getInt(R.integer.framework_animation_delay_long))
-        }
-
-        val hideSet = new AnimatorSet
-        hideSet.playTogether(hidePickUserAnimator, showParticipantsAnimator)
-        hideSet.start()
-
-      }
-  }
-
   override def onShowParticipants(anchorView: View, isSingleConversation: Boolean, isMemberOfConversation: Boolean, showDeviceTabIfSingle: Boolean): Unit = {}
 
   override def onHideParticipants(backOrButtonPressed: Boolean, hideByConversationChange: Boolean, isSingleConversation: Boolean): Unit = {}
@@ -523,10 +417,6 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
   override def onConversationUpdated(conversation: ConvId): Unit = {}
 
   override def showIncomingPendingConnectRequest(conv: ConvId): Unit = {}
-
-  override def onShowUserProfile(userId: UserId, anchorView: View): Unit = {}
-
-  override def onHideUserProfile(): Unit = {}
 }
 
 object ParticipantFragment {
@@ -542,10 +432,6 @@ object ParticipantFragment {
       })
     }
 
-  trait Container {
-    def onOpenUrl(url: String): Unit
-
-    def dismissDialog(): Unit
-  }
+  trait Container {}
 
 }

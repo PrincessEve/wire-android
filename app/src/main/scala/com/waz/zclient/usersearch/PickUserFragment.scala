@@ -47,7 +47,6 @@ import com.waz.zclient._
 import com.waz.zclient.common.controllers._
 import com.waz.zclient.common.controllers.global.{AccentColorController, KeyboardController}
 import com.waz.zclient.common.views.{FlatWireButton, PickableElement}
-import com.waz.zclient.controllers.globallayout.IGlobalLayoutController
 import com.waz.zclient.controllers.navigation.{INavigationController, Page}
 import com.waz.zclient.conversation.ConversationController
 import com.waz.zclient.conversation.creation.{NewConversationController, NewConversationFragment}

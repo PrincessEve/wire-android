@@ -23,15 +23,15 @@ import android.content.{Context, DialogInterface}
 import android.graphics.LightingColorFilter
 import android.graphics.drawable.LayerDrawable
 import android.util.AttributeSet
-import android.view.View.{GONE, INVISIBLE, MeasureSpec, VISIBLE}
+import android.view.View.{GONE, INVISIBLE, VISIBLE}
 import android.view.{LayoutInflater, MotionEvent, View}
 import android.widget.{FrameLayout, SeekBar, TextView}
 import com.waz.ZLog.ImplicitTag._
 import com.waz.api.{AudioAssetForUpload, MessageContent, NetworkMode, PlaybackControls}
 import com.waz.model.AssetId
+import com.waz.permissions.PermissionsService
 import com.waz.service.ZMessaging
 import com.waz.service.assets.GlobalRecordAndPlayService.{AssetMediaKey, RecordingCancelled, RecordingSuccessful}
-import com.waz.permissions.PermissionsService
 import com.waz.threading.CancellableFuture.CancelException
 import com.waz.threading.Threading
 import com.waz.utils.events.{ClockSignal, Signal}
@@ -322,8 +322,7 @@ class AudioMessageRecordingView (val context: Context, val attrs: AttributeSet, 
 
   override protected def onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) = {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    val width = MeasureSpec.getSize(widthMeasureSpec)
-    closeButtonContainer.setWidth(CursorUtils.getDistanceOfAudioMessageIconToLeftScreenEdge(getContext, width))
+    closeButtonContainer.setWidth(CursorUtils.getDistanceOfAudioMessageIconToLeftScreenEdge(getContext))
     cancelButton.setMarginLeft(CursorUtils.getMarginBetweenCursorButtons(getContext))
   }
 

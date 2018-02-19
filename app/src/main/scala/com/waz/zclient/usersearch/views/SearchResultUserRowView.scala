@@ -31,7 +31,6 @@ import com.waz.utils.events.{EventStream, Signal, SourceStream}
 import com.waz.utils.returning
 import com.waz.zclient.common.views.ChatheadView
 import com.waz.zclient.ui.text.TypefaceTextView
-import com.waz.zclient.utils.ContextUtils
 import com.waz.zclient.utils.ContextUtils.getDrawable
 import com.waz.zclient.{R, ViewHelper}
 

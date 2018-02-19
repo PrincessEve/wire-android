@@ -34,19 +34,18 @@ import com.waz.api._
 import com.waz.model.Availability
 import com.waz.threading.Threading
 import com.waz.utils.events.Signal
-import com.waz.zclient.ViewHelper
+import com.waz.utils.returning
+import com.waz.zclient.{R, ViewHelper}
 import com.waz.zclient.controllers.globallayout.IGlobalLayoutController
 import com.waz.zclient.cursor.CursorController.KeyboardState
-import com.waz.zclient.pages.extendedcursor.ExtendedCursorContainer
-import com.waz.zclient.R
 import com.waz.zclient.messages.MessagesController
+import com.waz.zclient.pages.extendedcursor.ExtendedCursorContainer
 import com.waz.zclient.ui.cursor._
+import com.waz.zclient.ui.text.TextTransform
 import com.waz.zclient.ui.theme.ThemeUtils
-import com.waz.zclient.ui.utils.CursorUtils
 import com.waz.zclient.utils.ContextUtils._
 import com.waz.zclient.utils._
 import com.waz.zclient.views.AvailabilityView
-import com.waz.zclient.ui.text.TextTransform
 
 class CursorView(val context: Context, val attrs: AttributeSet, val defStyleAttr: Int)
     extends LinearLayout(context, attrs, defStyleAttr) with ViewHelper {
@@ -64,17 +63,21 @@ class CursorView(val context: Context, val attrs: AttributeSet, val defStyleAttr
   setOrientation(LinearLayout.VERTICAL)
   inflate(R.layout.cursor_view_content)
 
-  val cursorToolbarFrame: CursorToolbarContainer = findById(R.id.cal__cursor)
-  val cursorEditText: CursorEditText             = findById(R.id.cet__cursor)
-  val mainToolbar: CursorToolbar                 = findById(R.id.c__cursor__main)
-  val secondaryToolbar: CursorToolbar            = findById(R.id.c__cursor__secondary)
-  val topBorder: View                            = findById(R.id.v__top_bar__cursor)
-  val hintView: TextView                         = findById(R.id.ttv__cursor_hint)
-  val dividerView: View                          = findById(R.id.v__cursor__divider)
-  val emojiButton: CursorIconButton              = findById(R.id.cib__emoji)
-  val keyboardButton: CursorIconButton           = findById(R.id.cib__keyboard)
-  val sendButton: CursorIconButton               = findById(R.id.cib__send)
-  val ephemeralButton: CursorIconButton          = findById(R.id.cib__ephemeral)
+  val cursorToolbarFrame = returning(findById[CursorToolbarContainer](R.id.cal__cursor)) { f =>
+    val left = getDimenPx(R.dimen.cursor_toolbar_padding_horizontal_edge)
+    f.setPadding(left, 0, left, 0)
+  }
+
+  val cursorEditText   = findById[CursorEditText]  (R.id.cet__cursor)
+  val mainToolbar      = findById[CursorToolbar]   (R.id.c__cursor__main)
+  val secondaryToolbar = findById[CursorToolbar]   (R.id.c__cursor__secondary)
+  val topBorder        = findById[View]            (R.id.v__top_bar__cursor)
+  val hintView         = findById[TextView]        (R.id.ttv__cursor_hint)
+  val dividerView      = findById[View]            (R.id.v__cursor__divider)
+  val emojiButton      = findById[CursorIconButton](R.id.cib__emoji)
+  val keyboardButton   = findById[CursorIconButton](R.id.cib__keyboard)
+  val sendButton       = findById[CursorIconButton](R.id.cib__send)
+  val ephemeralButton  = findById[CursorIconButton](R.id.cib__ephemeral)
 
   lazy val editBackgroundColor = getStyledColor(R.attr.cursorEditBackground)
   val defaultTextColor = cursorEditText.getCurrentTextColor
@@ -183,28 +186,6 @@ class CursorView(val context: Context, val attrs: AttributeSet, val defStyleAttr
     cursorEditText.setAccentColor(accent.getColor)
   }
 
-  val menuLeftMargin = controller.cursorWidth map { w =>
-    if ((LayoutSpec.get(getContext) eq LayoutSpec.LAYOUT_PHONE) || (LayoutSpec.get(getContext) eq LayoutSpec.LAYOUT_KINDLE)) {
-      getDimenPx(R.dimen.cursor_toolbar_padding_horizontal_edge)
-    } else {
-      CursorUtils.getCursorMenuLeftMargin(getContext, w)
-    }
-  }
-  menuLeftMargin { left =>
-    cursorToolbarFrame.setPadding(left, 0, left, 0)
-  }
-
-  val anchorPositionPx2 = controller.cursorWidth map { w =>
-    if ((LayoutSpec.get(getContext) eq LayoutSpec.LAYOUT_PHONE) || (LayoutSpec.get(getContext) eq LayoutSpec.LAYOUT_KINDLE)) {
-      0
-    } else {
-      CursorUtils.getCursorEditTextAnchorPosition(getContext, w)
-    }
-  }
-  anchorPositionPx2 { pos =>
-    hintView.setTranslationX(pos)
-  }
-
   private lazy val transformer = TextTransform.get(ContextUtils.getString(R.string.single_image_message__name__font_transform))
 
   (for {
@@ -294,7 +275,6 @@ class CursorView(val context: Context, val attrs: AttributeSet, val defStyleAttr
 
   override def onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int): Unit = {
     super.onLayout(changed, l, t, r, b)
-
     controller.cursorWidth ! (r - l)
   }
 }

@@ -20,7 +20,6 @@ package com.waz.zclient.pages.main.pickuser.controller;
 import android.content.Context;
 import android.view.View;
 import com.waz.model.UserId;
-import com.waz.zclient.utils.LayoutSpec;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -127,7 +126,7 @@ public class PickUserController implements IPickUserController {
     public boolean isShowingUserProfile() {
         // The PickUser fragment is only showing user profile for phone,
         // for tablet the user profile is shown in a dialog and this should always return false
-        return isShowingUserProfile && LayoutSpec.isPhone(context);
+        return isShowingUserProfile;
     }
 
     @Override

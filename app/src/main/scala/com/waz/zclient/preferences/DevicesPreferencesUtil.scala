@@ -17,17 +17,14 @@
  */
 package com.waz.zclient.preferences
 
-import java.util.Locale
-
 import android.content.Context
 import android.text.format.DateFormat
 import android.util.TypedValue
 import com.waz.model.otr.Client
 import com.waz.zclient.R
 import com.waz.zclient.ui.utils.TextViewUtils
-import com.waz.zclient.utils.{StringUtils, ZTimeFormatter}
+import com.waz.zclient.utils.{RichClient, StringUtils, ZTimeFormatter}
 import org.threeten.bp.{LocalDateTime, ZoneId}
-import com.waz.zclient.utils.RichClient
 
 object DevicesPreferencesUtil {
   private val BOLD_PREFIX = "[["

@@ -43,7 +43,7 @@ import com.waz.zclient.pages.main.conversation.controller.IConversationScreenCon
 import com.waz.zclient.pages.main.pickuser.controller.IPickUserController
 import com.waz.zclient.participants.{ParticipantsChatheadAdapter, ParticipantsController}
 import com.waz.zclient.utils.ContextUtils._
-import com.waz.zclient.utils.{RichView, UiStorage, UserSignal, ViewUtils}
+import com.waz.zclient.utils.{UiStorage, UserSignal, ViewUtils}
 import com.waz.zclient.views.menus.{FooterMenu, FooterMenuCallback}
 import com.waz.zclient.{FragmentHelper, R}
 
@@ -165,18 +165,8 @@ class ParticipantsBodyFragment extends BaseFragment[ParticipantsBodyFragment.Con
     } else super.onCreateAnimation(transit, enter, nextAnim)
   }
 
-  override def onCreate(savedInstanceState: Bundle): Unit = {
-    super.onCreate(savedInstanceState)
-    userRequester = getArguments.getSerializable(ParticipantsBodyFragment.ARG_USER_REQUESTER).asInstanceOf[IConnectStore.UserRequester]
-  }
-
   override def onCreateView(inflater: LayoutInflater, viewGroup: ViewGroup, savedInstanceState: Bundle): View =
-    returning(inflater.inflate(R.layout.fragment_group_participant, viewGroup, false)) {
-      // Toggle color background
-      _.onClick(backgroundClicked ! Unit)
-    }
-
-  val backgroundClicked: SourceStream[Unit] = EventStream()
+    inflater.inflate(R.layout.fragment_group_participant, viewGroup, false)
 
   override def onViewCreated(view: View, @Nullable savedInstanceState: Bundle): Unit = {
     super.onViewCreated(view, savedInstanceState)
@@ -228,14 +218,9 @@ class ParticipantsBodyFragment extends BaseFragment[ParticipantsBodyFragment.Con
 
 object ParticipantsBodyFragment {
   val TAG: String = classOf[ParticipantsBodyFragment].getName
-  private val ARG_USER_REQUESTER = "ARG_USER_REQUESTER"
 
-  def newInstance(userRequester: IConnectStore.UserRequester): ParticipantsBodyFragment =
-    returning(new ParticipantsBodyFragment) {
-      _.setArguments(returning(new Bundle){
-        _.putSerializable(ARG_USER_REQUESTER, userRequester)
-      })
-    }
+  def newInstance(): ParticipantsBodyFragment =
+    new ParticipantsBodyFragment
 
   trait Container {
 

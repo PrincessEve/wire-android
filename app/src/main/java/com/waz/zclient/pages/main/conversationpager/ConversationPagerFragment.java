@@ -25,21 +25,18 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.waz.zclient.BaseActivity;
 import com.waz.zclient.OnBackPressedListener;
 import com.waz.zclient.R;
+import com.waz.zclient.collection.controllers.CollectionController;
 import com.waz.zclient.controllers.navigation.NavigationController;
 import com.waz.zclient.controllers.navigation.NavigationControllerObserver;
 import com.waz.zclient.controllers.navigation.Page;
 import com.waz.zclient.controllers.navigation.PagerControllerObserver;
 import com.waz.zclient.conversation.ConversationController;
-import com.waz.zclient.collection.controllers.CollectionController;
 import com.waz.zclient.cursor.CursorController;
 import com.waz.zclient.pages.BaseFragment;
-import com.waz.zclient.ui.utils.ResourceUtils;
 import com.waz.zclient.utils.Callback;
-import com.waz.zclient.utils.LayoutSpec;
 
 public class ConversationPagerFragment extends BaseFragment<ConversationPagerFragment.Container> implements OnBackPressedListener,
                                                                                                             PagerControllerObserver,
@@ -77,11 +74,7 @@ public class ConversationPagerFragment extends BaseFragment<ConversationPagerFra
         conversationPager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
         conversationPager.setOverScrollMode(View.OVER_SCROLL_NEVER);
         conversationPager.setPageTransformer(false, new CustomPagerTransformer(CustomPagerTransformer.SLIDE_IN));
-        conversationPagerAdapter = new ConversationPagerAdapter(getActivity(),
-                                                                getChildFragmentManager(),
-                                                                LayoutSpec.get(getActivity()),
-                                                                ResourceUtils.getResourceFloat(getResources(),
-                                                                                               R.dimen.framework__first_page__percentage));
+        conversationPagerAdapter = new ConversationPagerAdapter(getChildFragmentManager());
         conversationPager.setAdapter(conversationPagerAdapter);
 
         if (this.getControllerFactory().getUserPreferencesController().showContactsDialog()) {

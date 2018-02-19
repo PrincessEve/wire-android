@@ -38,13 +38,11 @@ import com.waz.zclient.core.stores.connect.ConnectStoreObserver;
 import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.pages.main.participants.ProfileAnimation;
-import com.waz.zclient.pages.main.participants.ProfileTabletAnimation;
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
 import com.waz.zclient.ui.animation.fragment.FadeAnimation;
 import com.waz.zclient.ui.theme.ThemeUtils;
 import com.waz.zclient.ui.views.ZetaButton;
 import com.waz.zclient.utils.ContextUtils;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.images.ImageAssetImageView;
 import com.waz.zclient.views.menus.FooterMenu;
@@ -103,19 +101,13 @@ public class BlockedUserProfileFragment extends BaseFragment<BlockedUserProfileF
             // Fade out animation when starting conversation directly with this user when unblocking
             if (!goToConversationWithUser || enter) {
                 if (nextAnim != 0) {
-                    if (LayoutSpec.isTablet(getActivity())) {
-                        animation = new ProfileTabletAnimation(enter,
-                                                               getResources().getInteger(R.integer.framework_animation_duration_long),
-                                                               getResources().getDimensionPixelSize(R.dimen.participant_dialog__initial_width));
+                    if (enter) {
+                        duration = getResources().getInteger(R.integer.open_profile__animation_duration);
+                        delay = getResources().getInteger(R.integer.open_profile__delay);
                     } else {
-                        if (enter) {
-                            duration = getResources().getInteger(R.integer.open_profile__animation_duration);
-                            delay = getResources().getInteger(R.integer.open_profile__delay);
-                        } else {
-                            duration = getResources().getInteger(R.integer.close_profile__animation_duration);
-                        }
-                        animation = new ProfileAnimation(enter, duration, delay, centerX, centerY);
+                        duration = getResources().getInteger(R.integer.close_profile__animation_duration);
                     }
+                    animation = new ProfileAnimation(enter, duration, delay, centerX, centerY);
                 }
             } else {
                 goToConversationWithUser = false;
@@ -177,7 +169,7 @@ public class BlockedUserProfileFragment extends BaseFragment<BlockedUserProfileF
         separatorLine.setVisibility(View.GONE);
 
         View backgroundContainer = ViewUtils.getView(view, R.id.fl__blocked_user__background_container);
-        if ((LayoutSpec.isPhone(getActivity()) && getControllerFactory().getNavigationController().getPagerPosition() == NavigationController.FIRST_PAGE) ||
+        if (getControllerFactory().getNavigationController().getPagerPosition() == NavigationController.FIRST_PAGE ||
             (getControllerFactory().getConversationScreenController().getPopoverLaunchMode() == DialogLaunchMode.AVATAR ||
              getControllerFactory().getConversationScreenController().getPopoverLaunchMode() == DialogLaunchMode.COMMON_USER)) {
             backgroundContainer.setClickable(true);

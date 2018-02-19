@@ -33,7 +33,7 @@ public enum LayoutSpec {
         this.spec = spec;
     }
 
-    public static LayoutSpec get(Context context) {
+    private static LayoutSpec get(Context context) {
 
         if (context == null) {
             Timber.e("Tried to get LayoutSpec with a null context!");
@@ -55,10 +55,6 @@ public enum LayoutSpec {
     }
 
     public static boolean isPhone(Context context) {
-        return true;
-    }
-
-    public static boolean isTablet(Context context) {
-        return false;
+        return get(context) == LAYOUT_PHONE;
     }
 }

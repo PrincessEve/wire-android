@@ -29,14 +29,13 @@ import com.waz.api.NetworkMode;
 import com.waz.api.User;
 import com.waz.api.Verification;
 import com.waz.model.ConvId;
-import com.waz.utils.wrappers.AndroidURIUtil;
 import com.waz.model.UserId;
 import com.waz.zclient.BaseActivity;
 import com.waz.zclient.OnBackPressedListener;
 import com.waz.zclient.R;
-import com.waz.zclient.common.controllers.BrowserController;
-import com.waz.zclient.common.views.UserDetailsView;
+import com.waz.zclient.common.controllers.SoundController;
 import com.waz.zclient.common.controllers.ThemeController;
+import com.waz.zclient.common.views.UserDetailsView;
 import com.waz.zclient.controllers.confirmation.ConfirmationCallback;
 import com.waz.zclient.controllers.confirmation.ConfirmationRequest;
 import com.waz.zclient.controllers.confirmation.IConfirmationController;
@@ -47,7 +46,6 @@ import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.core.stores.conversation.ConversationChangeRequester;
 import com.waz.zclient.core.stores.network.NetworkAction;
 import com.waz.zclient.core.stores.singleparticipants.SingleParticipantStoreObserver;
-import com.waz.zclient.common.controllers.SoundController;
 import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.pages.main.connect.UserProfileContainer;
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
@@ -55,9 +53,8 @@ import com.waz.zclient.participants.fragments.TabbedParticipantBodyFragment;
 import com.waz.zclient.ui.animation.fragment.FadeAnimation;
 import com.waz.zclient.ui.theme.OptionsTheme;
 import com.waz.zclient.ui.theme.ThemeUtils;
-import com.waz.zclient.utils.LayoutSpec;
-import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.utils.ContextUtils;
+import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.e2ee.ShieldView;
 import com.waz.zclient.views.images.ImageAssetImageView;
 import com.waz.zclient.views.menus.FooterMenu;
@@ -118,19 +115,13 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
                 animation = new FadeAnimation(duration, 1, 0);
             } else {
                 if (nextAnim != 0) {
-                    if (LayoutSpec.isTablet(getActivity())) {
-                        animation = new ProfileTabletAnimation(enter,
-                                                               getResources().getInteger(R.integer.framework_animation_duration_long),
-                                                               getResources().getDimensionPixelSize(R.dimen.participant_dialog__initial_width));
+                    if (enter) {
+                        duration = getResources().getInteger(R.integer.open_profile__animation_duration);
+                        delay = getResources().getInteger(R.integer.open_profile__delay);
                     } else {
-                        if (enter) {
-                            duration = getResources().getInteger(R.integer.open_profile__animation_duration);
-                            delay = getResources().getInteger(R.integer.open_profile__delay);
-                        } else {
-                            duration = getResources().getInteger(R.integer.close_profile__animation_duration);
-                        }
-                        animation = new ProfileAnimation(enter, duration, delay, centerX, centerY);
+                        duration = getResources().getInteger(R.integer.close_profile__animation_duration);
                     }
+                    animation = new ProfileAnimation(enter, duration, delay, centerX, centerY);
                 }
             }
         }
@@ -182,7 +173,7 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
         }
 
         View backgroundContainer = ViewUtils.getView(view, R.id.fl__send_connect_request__background_container);
-        if ((LayoutSpec.isPhone(getActivity()) && getControllerFactory().getNavigationController().getPagerPosition() == NavigationController.FIRST_PAGE) ||
+        if (getControllerFactory().getNavigationController().getPagerPosition() == NavigationController.FIRST_PAGE ||
             (getControllerFactory().getConversationScreenController().getPopoverLaunchMode() == DialogLaunchMode.AVATAR ||
              getControllerFactory().getConversationScreenController().getPopoverLaunchMode() == DialogLaunchMode.COMMON_USER)) {
             backgroundContainer.setClickable(true);
@@ -377,12 +368,6 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
         getContainer().showRemoveConfirmation(userId);
     }
 
-    @Override
-    public void onOpenUrl(String url) {
-        inject(BrowserController.class).openUrl(AndroidURIUtil.parse(url));
-    }
-
     public interface Container extends UserProfileContainer {
-        void onOpenUrl(String url);
     }
 }

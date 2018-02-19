@@ -41,7 +41,6 @@ import com.waz.zclient.participants.OptionsMenu.{AnimState, Closed, Opening}
 import com.waz.zclient.ui.optionsmenu.OptionsMenuItem
 import com.waz.zclient.ui.optionsmenu.OptionsMenuItem._
 import com.waz.zclient.utils.ContextUtils._
-import com.waz.zclient.utils.LayoutSpec
 import com.waz.zclient.{Injectable, Injector, R}
 
 import scala.concurrent.Future
@@ -150,13 +149,10 @@ class OptionsMenuController(implicit injector: Injector, context: Context, ec: E
   (for {
     inConvList <- inConversationList
     animState  <- animationState
-  } yield (inConvList, animState)).onChanged.collect { case (true, state) => state } .onUi {
-    case Opening if LayoutSpec.isPhone(context) =>
-      navController.setLeftPage(Page.CONVERSATION_MENU_OVER_CONVERSATION_LIST, tag)
-    case Closed if LayoutSpec.isPhone(context) =>
-      navController.setLeftPage(Page.CONVERSATION_LIST, tag)
-    case _ => //
-  }
+  } yield (inConvList, animState)).onChanged.collect {
+    case (true, Opening) => Page.CONVERSATION_MENU_OVER_CONVERSATION_LIST
+    case (true, Closed)  => Page.CONVERSATION_LIST
+  }.onUi(page => navController.setLeftPage(page, tag))
 
   val convState = for {
     cId <- convId
@@ -202,7 +198,6 @@ class OptionsMenuController(implicit injector: Injector, context: Context, ec: E
       cancel  = getString(R.string.confirmation_menu__cancel),
       onPositiveClick = _ => {
         convController.leave(convId)
-        if (!inConvList && LayoutSpec.isTablet(context)) screenController.hideParticipants(false, true)
       }
     )
 
@@ -218,7 +213,6 @@ class OptionsMenuController(implicit injector: Injector, context: Context, ec: E
           checkBoxLabel = if (isGroup && isMember) getString(R.string.confirmation_menu__delete_conversation__checkbox__label) else "",
           onHideAnimEnd = (confirmed, _, checkboxIsSelected) => {
             if (confirmed) convController.delete(convId, checkboxIsSelected)
-            if (!inConvList && LayoutSpec.isTablet(context)) screenController.hideParticipants(false, true)
           }
         )
       }
@@ -243,7 +237,6 @@ class OptionsMenuController(implicit injector: Injector, context: Context, ec: E
 
               if (!inConvList) {
                 screenController.hideUser()
-                if (LayoutSpec.isTablet(context)) screenController.hideParticipants(false, true)
               }
             }(Threading.Ui)
           }

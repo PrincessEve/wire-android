@@ -30,7 +30,7 @@ import com.waz.model.UserId
 import com.waz.service.ZMessaging
 import com.waz.threading.Threading
 import com.waz.utils._
-import com.waz.zclient.common.controllers.{ThemeController, UserAccountsController}
+import com.waz.zclient.common.controllers.{BrowserController, ThemeController, UserAccountsController}
 import com.waz.zclient.conversation.ConversationController
 import com.waz.zclient.core.stores.conversation.ConversationChangeRequester
 import com.waz.zclient.pages.BaseFragment
@@ -56,6 +56,7 @@ class TabbedParticipantBodyFragment extends BaseFragment[TabbedParticipantBodyFr
   private lazy val themeController        = inject[ThemeController]
   private lazy val screenController       = inject[IConversationScreenController]
   private lazy val userAccountsController = inject[UserAccountsController]
+  private lazy val browserController      = inject[BrowserController]
 
   private lazy val callback = new FooterMenuCallback {
 
@@ -138,7 +139,7 @@ class TabbedParticipantBodyFragment extends BaseFragment[TabbedParticipantBodyFr
     }
 
     participantOtrDeviceAdapter.onHeaderClick {
-      _ => getContainer.onOpenUrl(getString(R.string.url_otr_learn_why))
+      _ => browserController.openUrl(getString(R.string.url_otr_learn_why))
     }
 
     participantsController.showParticipantsRequest.onUi {
@@ -176,8 +177,6 @@ object TabbedParticipantBodyFragment {
 
   trait Container {
     def showRemoveConfirmation(userId: UserId): Unit
-
-    def onOpenUrl(url: String): Unit
   }
 
 }

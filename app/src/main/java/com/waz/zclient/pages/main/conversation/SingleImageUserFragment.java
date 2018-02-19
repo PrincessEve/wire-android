@@ -48,10 +48,9 @@ import com.waz.zclient.ui.animation.interpolators.penner.Quart;
 import com.waz.zclient.ui.text.GlyphTextView;
 import com.waz.zclient.ui.utils.KeyboardUtils;
 import com.waz.zclient.ui.utils.MathUtils;
-import com.waz.zclient.utils.LayoutSpec;
+import com.waz.zclient.utils.ContextUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.images.TouchImageView;
-import com.waz.zclient.utils.ContextUtils;
 
 public class SingleImageUserFragment extends BaseFragment<SingleImageUserFragment.Container> implements ImageDragViewContainer.Callback,
                                                                                                OnBackPressedListener {
@@ -113,16 +112,14 @@ public class SingleImageUserFragment extends BaseFragment<SingleImageUserFragmen
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     protected void onPostAttach(Activity activity) {
         super.onPostAttach(activity);
-        if (LayoutSpec.isPhone(activity)) {
-            ViewUtils.unlockOrientation(activity);
-        }
+        ViewUtils.unlockOrientation(activity);
     }
 
     @Override
     protected void onPreDetach() {
         super.onPreDetach();
         Activity activity = getActivity();
-        if (activity != null && LayoutSpec.isPhone(activity)) {
+        if (activity != null) {
             ViewUtils.lockScreenOrientation(Configuration.ORIENTATION_PORTRAIT, activity);
         }
     }
@@ -492,7 +489,7 @@ public class SingleImageUserFragment extends BaseFragment<SingleImageUserFragmen
 
     @Override
     public void onDragDistance(float distance) {
-        if (ContextUtils.isInPortrait(getActivity()) || LayoutSpec.isTablet(getActivity())) {
+        if (ContextUtils.isInPortrait(getActivity())) {
             background.setAlpha(1f - (1f - MIN_BACKGROUND_ALPHA) * ALPHA_INTERPOLATOR.getInterpolation(distance));
         }
         if (distance >= MIN_DRAG_DISTANCE_FADE_CONTROL &&

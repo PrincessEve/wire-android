@@ -29,7 +29,6 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.waz.api.OtrClient;
 import com.waz.api.Subscriber;
 import com.waz.api.Subscription;
@@ -45,7 +44,6 @@ import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.ui.utils.TextViewUtils;
 import com.waz.zclient.ui.views.e2ee.OtrSwitch;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.OtrUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.LoadingIndicatorView;
@@ -126,10 +124,6 @@ public class SingleOtrClientFragment extends BaseFragment<SingleOtrClientFragmen
         fingerprintView = ViewUtils.getView(view, R.id.ttv__single_otr_client__fingerprint);
         if (otrClient != null) {
             fingerprintView.setOtrClient(otrClient, FingerprintView.DisplayType.FINGERPRINT);
-        }
-
-        if (LayoutSpec.isTablet(getActivity())) {
-            view.setBackgroundResource(R.drawable.rounded_corner_background_light);
         }
 
         view.setOnClickListener(this);

@@ -38,7 +38,6 @@ import com.waz.zclient.common.controllers.{SoundController, ThemeController, Use
 import com.waz.zclient.controllers.calling.ICallingController
 import com.waz.zclient.controllers.camera.ICameraController
 import com.waz.zclient.controllers.confirmation._
-import com.waz.zclient.controllers.currentfocus.IFocusController
 import com.waz.zclient.controllers.navigation.{INavigationController, NavigationControllerObserver, Page}
 import com.waz.zclient.conversation.ConversationController
 import com.waz.zclient.conversation.creation.NewConversationFragment
@@ -48,7 +47,6 @@ import com.waz.zclient.integrations.IntegrationDetailsFragment
 import com.waz.zclient.messages.UsersController
 import com.waz.zclient.pages.main.connect.{BlockedUserProfileFragment, ConnectRequestLoadMode, PendingConnectRequestManagerFragment, SendConnectRequestFragment}
 import com.waz.zclient.pages.main.conversation.controller.{ConversationScreenControllerObserver, IConversationScreenController}
-import com.waz.zclient.pages.main.participants.dialog.ParticipantsDialogFragment
 import com.waz.zclient.pages.main.pickuser.controller.IPickUserController.Destination
 import com.waz.zclient.pages.main.pickuser.controller.IPickUserController.Destination._
 import com.waz.zclient.pages.main.pickuser.controller.{IPickUserController, PickUserControllerScreenObserver}
@@ -57,7 +55,7 @@ import com.waz.zclient.ui.animation.interpolators.penner.{Expo, Quart}
 import com.waz.zclient.ui.utils.KeyboardUtils
 import com.waz.zclient.usersearch.PickUserFragment
 import com.waz.zclient.utils.ContextUtils._
-import com.waz.zclient.utils.{LayoutSpec, RichView}
+import com.waz.zclient.utils.RichView
 import com.waz.zclient.views.LoadingIndicatorView
 import com.waz.zclient.views.menus.ConfirmationMenu
 import com.waz.zclient.{FragmentHelper, OnBackPressedListener, R}
@@ -72,11 +70,9 @@ class ConversationListManagerFragment extends Fragment
   with NavigationControllerObserver
   with ConversationListFragment.Container
   with ConversationScreenControllerObserver
-  with ConfirmationObserver
   with OnBackPressedListener
   with SendConnectRequestFragment.Container
   with BlockedUserProfileFragment.Container
-  with ParticipantsDialogFragment.Container
   with PendingConnectRequestManagerFragment.Container {
 
   import ConversationListManagerFragment._
@@ -98,7 +94,6 @@ class ConversationListManagerFragment extends Fragment
   lazy val convScreenController    = inject[IConversationScreenController]
   lazy val confirmationController  = inject[IConfirmationController]
   lazy val cameraController        = inject[ICameraController]
-  lazy val focusController         = inject[IFocusController]
   lazy val callingController       = inject[ICallingController]
 
   private var startUiLoadingIndicator: LoadingIndicatorView = _
@@ -116,11 +111,10 @@ class ConversationListManagerFragment extends Fragment
     }
   }
 
-  private def stripToConversationList() =
-    if (!LayoutSpec.isTablet(getActivity)) {
-      pickUserController.hideUserProfile() // Hide possibly open self profile
-      if (pickUserController.hidePickUser(getCurrentPickerDestination)) navController.setLeftPage(Page.CONVERSATION_LIST, Tag) // Hide possibly open start ui
-    }
+  private def stripToConversationList() = {
+    pickUserController.hideUserProfile() // Hide possibly open self profile
+    if (pickUserController.hidePickUser(getCurrentPickerDestination)) navController.setLeftPage(Page.CONVERSATION_LIST, Tag) // Hide possibly open start ui
+  }
 
   private def animateOnIncomingCall() = {
     Option(getView).foreach {
@@ -246,7 +240,6 @@ class ConversationListManagerFragment extends Fragment
       }
 
       navController.setLeftPage(Page.CONVERSATION_LIST, Tag)
-      focusController.setFocus(IFocusController.CONVERSATION_CURSOR)
     }
 
   override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) = {
@@ -255,7 +248,7 @@ class ConversationListManagerFragment extends Fragment
   }
 
   override def onShowUserProfile(userId: UserId, anchorView: View) =
-    if (!pickUserController.isShowingUserProfile && LayoutSpec.isPhone(getActivity)) {
+    if (!pickUserController.isShowingUserProfile) {
       import User.ConnectionStatus._
 
       def show(fragment: Fragment, tag: String): Unit = {
@@ -376,14 +369,12 @@ class ConversationListManagerFragment extends Fragment
     pickUserController.addPickUserScreenControllerObserver(this)
     convScreenController.addConversationControllerObservers(this)
     navController.addNavigationControllerObserver(this)
-    confirmationController.addConfirmationObserver(this)
   }
 
   override def onStop() = {
     pickUserController.removePickUserScreenControllerObserver(this)
     convScreenController.removeConversationControllerObservers(this)
     navController.removeNavigationControllerObserver(this)
-    confirmationController.removeConfirmationObserver(this)
     super.onStop()
   }
 
@@ -416,10 +407,6 @@ class ConversationListManagerFragment extends Fragment
   }
 
   private def closeMenu = withOptionsMenu(_.close(), false)
-
-  override def onRequestConfirmation(confirmationRequest: ConfirmationRequest, requester: Int) =
-    if (LayoutSpec.isTablet(getActivity) && requester == IConfirmationController.CONVERSATION_LIST)
-      confirmationMenu.onRequestConfirmation(confirmationRequest)
 
   override def onAcceptedConnectRequest(convId: ConvId) = {
     verbose(s"onAcceptedConnectRequest $convId")
@@ -485,8 +472,6 @@ class ConversationListManagerFragment extends Fragment
   override def onShowLikesList(message: Message) = {}
 
   override def showRemoveConfirmation(userId: UserId) = {}
-
-  override def onOpenUrl(url: String) = {}
 
   override def onShowIntegrationDetails(providerId: ProviderId, integrationId: IntegrationId): Unit = {}
 }

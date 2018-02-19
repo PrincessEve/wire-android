@@ -52,13 +52,13 @@ import com.waz.zclient.core.stores.connect.{ConnectStoreObserver, IConnectStore}
 import com.waz.zclient.core.stores.conversation.ConversationChangeRequester
 import com.waz.zclient.core.stores.profile.ProfileStoreObserver
 import com.waz.zclient.fragments.ConnectivityFragment
-import com.waz.zclient.pages.main.{MainPhoneFragment, MainTabletFragment}
+import com.waz.zclient.pages.main.MainPhoneFragment
 import com.waz.zclient.pages.startup.UpdateFragment
 import com.waz.zclient.preferences.{PreferencesActivity, PreferencesController}
 import com.waz.zclient.tracking.{CrashController, UiTrackingController}
 import com.waz.zclient.utils.PhoneUtils.PhoneState
 import com.waz.zclient.utils.StringUtils.TextDrawing
-import com.waz.zclient.utils.{BuildConfigUtils, ContextUtils, Emojis, IntentUtils, LayoutSpec, PhoneUtils, ViewUtils}
+import com.waz.zclient.utils.{BuildConfigUtils, ContextUtils, Emojis, IntentUtils, PhoneUtils, ViewUtils}
 import net.hockeyapp.android.{ExceptionHandler, NativeCrashManager}
 
 import scala.collection.JavaConverters._
@@ -69,7 +69,6 @@ import scala.util.control.NonFatal
 class MainActivity extends BaseActivity
   with ActivityHelper
   with MainPhoneFragment.Container
-  with MainTabletFragment.Container
   with UpdateFragment.Container
   with ProfileStoreObserver
   with ConnectStoreObserver
@@ -103,7 +102,7 @@ class MainActivity extends BaseActivity
     getWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT))
     setContentView(R.layout.main)
 
-    if (LayoutSpec.isPhone(this)) ViewUtils.lockScreenOrientation(Configuration.ORIENTATION_PORTRAIT, this)
+    ViewUtils.lockScreenOrientation(Configuration.ORIENTATION_PORTRAIT, this)
 
     val fragmentManager = getSupportFragmentManager
     initializeControllers()
@@ -286,7 +285,7 @@ class MainActivity extends BaseActivity
     getStoreFactory.profileStore.setUser(self)
     getControllerFactory.getAccentColorController.setColor(AccentColorChangeRequester.LOGIN, self.getAccent.getColor)
     getControllerFactory.getUsernameController.setUser(self)
-    openMainPage()
+    if (getSupportFragmentManager.findFragmentByTag(MainPhoneFragment.TAG) == null) replaceMainFragment(new MainPhoneFragment, MainPhoneFragment.TAG)
   }
 
   def handleIntent(intent: Intent) = {
@@ -347,21 +346,6 @@ class MainActivity extends BaseActivity
       }
 
       case _ => setIntent(intent)
-    }
-  }
-
-  /**
-    * Depending on the orientation it opens either
-    * MainPhoneFragment or MainTabletFragment. At the
-    * beginning it checks if it is already setup properly.
-    */
-  private def openMainPage() = {
-    if (LayoutSpec.isPhone(this)) {
-      if (getSupportFragmentManager.findFragmentByTag(MainPhoneFragment.TAG) == null) replaceMainFragment(new MainPhoneFragment, MainPhoneFragment.TAG)
-      info("No need to open main fragment")
-    } else {
-      if (getSupportFragmentManager.findFragmentByTag(MainTabletFragment.TAG) == null) replaceMainFragment(new MainTabletFragment, MainTabletFragment.TAG)
-      info("No need to open main fragment")
     }
   }
 

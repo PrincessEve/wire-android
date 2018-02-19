@@ -45,7 +45,6 @@ import com.waz.zclient.collection.controllers.CollectionController
 import com.waz.zclient.common.controllers.{ThemeController, UserAccountsController}
 import com.waz.zclient.controllers.accentcolor.AccentColorObserver
 import com.waz.zclient.controllers.confirmation.{ConfirmationCallback, ConfirmationRequest, IConfirmationController}
-import com.waz.zclient.controllers.currentfocus.IFocusController
 import com.waz.zclient.controllers.drawing.IDrawingController
 import com.waz.zclient.controllers.giphy.GiphyObserver
 import com.waz.zclient.controllers.globallayout.KeyboardVisibilityObserver
@@ -68,14 +67,13 @@ import com.waz.zclient.pages.extendedcursor.voicefilter.VoiceFilterLayout
 import com.waz.zclient.pages.main.conversation.{AssetIntentsManager, MessageStreamAnimation}
 import com.waz.zclient.pages.main.conversationlist.ConversationListAnimation
 import com.waz.zclient.pages.main.conversationpager.controller.SlidingPaneObserver
-import com.waz.zclient.pages.main.pickuser.controller.IPickUserController
 import com.waz.zclient.pages.main.profile.camera.CameraContext
 import com.waz.zclient.participants.ParticipantsController
 import com.waz.zclient.ui.animation.interpolators.penner.Expo
 import com.waz.zclient.ui.cursor.CursorMenuItem
 import com.waz.zclient.ui.utils.KeyboardUtils
 import com.waz.zclient.utils.ContextUtils._
-import com.waz.zclient.utils.{LayoutSpec, RichView, SquareOrientation, ViewUtils}
+import com.waz.zclient.utils.{RichView, SquareOrientation, ViewUtils}
 import com.waz.zclient.views.e2ee.ShieldView
 import com.waz.zclient.{FragmentHelper, R}
 
@@ -191,11 +189,7 @@ class ConversationFragment extends BaseFragment[ConversationFragment.Container] 
     }
 
     leftMenu = findById(R.id.conversation_left_menu)
-
     toolbar = findById(R.id.t_conversation_toolbar)
-
-    if (LayoutSpec.isTablet(getContext) && isInLandscape(getContext)) toolbar.setNavigationIcon(null)
-
     toolbarTitle = ViewUtils.getView(toolbar, R.id.tv__conversation_toolbar__title).asInstanceOf[TextView]
     convController.currentConvName.onUi { updateTitle }
 
@@ -636,16 +630,6 @@ class ConversationFragment extends BaseFragment[ConversationFragment.Container] 
     override def openExtendedCursor(tpe: ExtendedCursorContainer.Type): Unit = ConversationFragment.this.openExtendedCursor(tpe)
 
     override def onCursorClicked(): Unit = if (!cursorView.isEditingMessage && listView.scrollController.targetPosition.isEmpty) listView.scrollToBottom()
-
-    override def onFocusChange(hasFocus: Boolean): Unit = {
-
-      if (hasFocus) getControllerFactory.getFocusController.setFocus(IFocusController.CONVERSATION_CURSOR)
-      if (!LayoutSpec.isPhone(getActivity) && getControllerFactory.getPickUserController.isShowingPickUser(IPickUserController.Destination.CONVERSATION_LIST)) {
-        // On tablet, apply Page.MESSAGE_STREAM soft input mode when conversation cursor has focus (soft input mode of page gets changed when left startui is open)
-        val softInputMode = getControllerFactory.getGlobalLayoutController.getSoftInputModeForPage(if (hasFocus) Page.MESSAGE_STREAM else Page.PICK_USER)
-        ViewUtils.setSoftInputMode(getActivity.getWindow, softInputMode, TAG)
-      }
-    }
 
     override def openFileSharing(): Unit = assetIntentsManager.foreach { _.openFileSharing() }
 

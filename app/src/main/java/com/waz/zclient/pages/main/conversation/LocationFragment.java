@@ -57,8 +57,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.waz.api.MessageContent;
 import com.waz.model.ConversationData;
-import com.waz.service.ZMessaging;
 import com.waz.permissions.PermissionsService;
+import com.waz.service.ZMessaging;
 import com.waz.service.tracking.ContributionEvent;
 import com.waz.zclient.BuildConfig;
 import com.waz.zclient.OnBackPressedListener;
@@ -70,7 +70,6 @@ import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.ui.text.GlyphTextView;
 import com.waz.zclient.ui.views.TouchRegisteringFrameLayout;
 import com.waz.zclient.utils.Callback;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.StringUtils;
 import com.waz.zclient.utils.ViewUtils;
 import timber.log.Timber;
@@ -221,9 +220,6 @@ public class LocationFragment extends BaseFragment<LocationFragment.Container> i
                 getControllerFactory().getLocationController().hideShareLocation(null);
             }
         });
-        if (LayoutSpec.isTablet(getContext())) {
-            toolbar.setNavigationIcon(R.drawable.action_back_dark);
-        }
 
         toolbarTitle = ViewUtils.getView(view, R.id.tv__location_toolbar__title);
 

@@ -19,7 +19,6 @@ package com.waz.zclient.ui.utils;
 
 import android.content.Context;
 import com.waz.zclient.ui.R;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.ViewUtils;
 
 public class CursorUtils {
@@ -27,49 +26,17 @@ public class CursorUtils {
     public static final int NUM_CURSOR_ROW_BUTTONS = 6;
 
     public static int getMarginBetweenCursorButtons(Context context) {
-        int margin;
         int cursorButtonWidth = context.getResources().getDimensionPixelSize(R.dimen.new_cursor_menu_button_width);
-
-        if (LayoutSpec.isPhone(context)) {
-            int paddingEdge = context.getResources().getDimensionPixelSize(R.dimen.cursor_toolbar_padding_horizontal_edge);
-            int total = ViewUtils.getOrientationIndependentDisplayWidth(context) - 2 * paddingEdge - cursorButtonWidth * NUM_CURSOR_ROW_BUTTONS;
-            margin = total / (NUM_CURSOR_ROW_BUTTONS - 1);
-        } else {
-            margin = context.getResources().getDimensionPixelSize(R.dimen.cursor_toolbar_padding_item);
-        }
-        return margin;
+        int paddingEdge = context.getResources().getDimensionPixelSize(R.dimen.cursor_toolbar_padding_horizontal_edge);
+        int total = ViewUtils.getOrientationIndependentDisplayWidth(context) - 2 * paddingEdge - cursorButtonWidth * NUM_CURSOR_ROW_BUTTONS;
+        return total / (NUM_CURSOR_ROW_BUTTONS - 1);
     }
 
-    public static int getCursorEditTextAnchorPosition(Context context, int width) {
-        if (ViewUtils.isInPortrait(context)) {
-            return (width - context.getResources().getDimensionPixelSize(R.dimen.cursor_desired_width)) / 2;
-        }
-        return context.getResources().getDimensionPixelSize(R.dimen.cursor_anchor2);
-    }
-
-    public static int getCursorMenuLeftMargin(Context context, int totalWidth) {
-        if (ViewUtils.isInPortrait(context)) {
-            return getCursorEditTextAnchorPosition(context, totalWidth) -
-                   context.getResources().getDimensionPixelSize(R.dimen.new_cursor_menu_button_width) -
-                   context.getResources().getDimensionPixelSize(R.dimen.cursor_typing_left_margin);
-        }
-        return context.getResources().getDimensionPixelSize(R.dimen.cursor_typing_left_margin);
-    }
-
-    public static int getDistanceOfAudioMessageIconToLeftScreenEdge(Context context, int totalWidth) {
+    public static int getDistanceOfAudioMessageIconToLeftScreenEdge(Context context) {
         int cursorToolbarMarginRight = context.getResources().getDimensionPixelSize(R.dimen.cursor_toolbar_padding_horizontal_edge);
         int cursorButtonWidth = context.getResources().getDimensionPixelSize(R.dimen.new_cursor_menu_button_width);
         int cursorButtonMarginRight = getMarginBetweenCursorButtons(context);
 
-        if (LayoutSpec.isTablet(context)) {
-            return totalWidth - (getCursorMenuLeftMargin(context, totalWidth) +
-                                  (NUM_CURSOR_ROW_BUTTONS - 1) * cursorButtonWidth +
-                                  (NUM_CURSOR_ROW_BUTTONS - 2) * cursorButtonMarginRight);
-        } else {
-            return cursorButtonWidth +
-                    cursorButtonMarginRight +
-                    cursorToolbarMarginRight;
-
-        }
+        return cursorButtonWidth + cursorButtonMarginRight + cursorToolbarMarginRight;
     }
 }

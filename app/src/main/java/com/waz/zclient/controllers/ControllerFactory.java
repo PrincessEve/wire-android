@@ -23,16 +23,12 @@ import android.view.View;
 
 import com.waz.zclient.controllers.accentcolor.AccentColorController;
 import com.waz.zclient.controllers.accentcolor.IAccentColorController;
-import com.waz.zclient.controllers.background.DialogBackgroundImageController;
-import com.waz.zclient.controllers.background.IDialogBackgroundImageController;
 import com.waz.zclient.controllers.calling.CallingController;
 import com.waz.zclient.controllers.calling.ICallingController;
 import com.waz.zclient.controllers.camera.CameraController;
 import com.waz.zclient.controllers.camera.ICameraController;
 import com.waz.zclient.controllers.confirmation.ConfirmationController;
 import com.waz.zclient.controllers.confirmation.IConfirmationController;
-import com.waz.zclient.controllers.currentfocus.FocusController;
-import com.waz.zclient.controllers.currentfocus.IFocusController;
 import com.waz.zclient.controllers.deviceuser.DeviceUserController;
 import com.waz.zclient.controllers.deviceuser.IDeviceUserController;
 import com.waz.zclient.controllers.drawing.DrawingController;
@@ -47,8 +43,6 @@ import com.waz.zclient.controllers.navigation.INavigationController;
 import com.waz.zclient.controllers.navigation.NavigationController;
 import com.waz.zclient.controllers.orientation.IOrientationController;
 import com.waz.zclient.controllers.orientation.OrientationController;
-import com.waz.zclient.controllers.password.IPasswordController;
-import com.waz.zclient.controllers.password.PasswordController;
 import com.waz.zclient.controllers.singleimage.ISingleImageController;
 import com.waz.zclient.controllers.singleimage.SingleImageController;
 import com.waz.zclient.controllers.usernames.IUsernamesController;
@@ -67,15 +61,11 @@ import com.waz.zclient.pages.main.pickuser.controller.PickUserController;
 public class ControllerFactory implements IControllerFactory {
   protected IAccentColorController accentColorController;
 
-  protected IDialogBackgroundImageController dialogBackgroundImageController;
-
   protected ICallingController callingController;
 
   protected ICameraController cameraController;
 
   protected IConfirmationController confirmationController;
-
-  protected IFocusController focusController;
 
   protected IDeviceUserController deviceUserController;
 
@@ -90,8 +80,6 @@ public class ControllerFactory implements IControllerFactory {
   protected INavigationController navigationController;
 
   protected IOrientationController orientationController;
-
-  protected IPasswordController passwordController;
 
   protected ISingleImageController singleImageController;
 
@@ -117,15 +105,6 @@ public class ControllerFactory implements IControllerFactory {
   }
 
   @Override
-  public IPasswordController getPasswordController() {
-    verifyLifecycle();
-    if (passwordController == null) {
-      passwordController = new PasswordController();
-    }
-    return passwordController;
-  }
-
-  @Override
   public ISlidingPaneController getSlidingPaneController() {
     verifyLifecycle();
     if (slidingPaneController == null) {
@@ -141,10 +120,6 @@ public class ControllerFactory implements IControllerFactory {
       accentColorController.tearDown();
       accentColorController = null;
     }
-    if (dialogBackgroundImageController != null) {
-      dialogBackgroundImageController.tearDown();
-      dialogBackgroundImageController = null;
-    }
     if (callingController != null) {
       callingController.tearDown();
       callingController = null;
@@ -156,9 +131,6 @@ public class ControllerFactory implements IControllerFactory {
     if (confirmationController != null) {
       confirmationController.tearDown();
       confirmationController = null;
-    }
-    if (focusController != null) {
-      focusController = null;
     }
     if (deviceUserController != null) {
       deviceUserController.tearDown();
@@ -187,10 +159,6 @@ public class ControllerFactory implements IControllerFactory {
     if (orientationController != null) {
       orientationController.tearDown();
       orientationController = null;
-    }
-    if (passwordController != null) {
-      passwordController.tearDown();
-      passwordController = null;
     }
     if (singleImageController != null) {
       singleImageController.tearDown();
@@ -226,15 +194,6 @@ public class ControllerFactory implements IControllerFactory {
   @Override
   public void setGlobalLayout(View globalLayoutView) {
     getGlobalLayoutController().setGlobalLayout(globalLayoutView);
-  }
-
-  @Override
-  public IFocusController getFocusController() {
-    verifyLifecycle();
-    if (focusController == null) {
-      focusController = new FocusController();
-    }
-    return focusController;
   }
 
   @Override
@@ -330,15 +289,6 @@ public class ControllerFactory implements IControllerFactory {
       locationController = new LocationController();
     }
     return locationController;
-  }
-
-  @Override
-  public IDialogBackgroundImageController getDialogBackgroundImageController() {
-    verifyLifecycle();
-    if (dialogBackgroundImageController == null) {
-      dialogBackgroundImageController = new DialogBackgroundImageController();
-    }
-    return dialogBackgroundImageController;
   }
 
   @Override

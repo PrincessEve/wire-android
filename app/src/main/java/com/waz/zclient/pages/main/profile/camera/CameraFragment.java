@@ -20,7 +20,6 @@ package com.waz.zclient.pages.main.profile.camera;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -51,7 +50,6 @@ import com.waz.zclient.pages.main.profile.camera.controls.CameraBottomControl;
 import com.waz.zclient.pages.main.profile.camera.controls.CameraTopControl;
 import com.waz.zclient.ui.animation.interpolators.penner.Expo;
 import com.waz.zclient.utils.Callback;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.SquareOrientation;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.ProgressView;
@@ -197,9 +195,7 @@ public class CameraFragment extends BaseFragment<CameraFragment.Container> imple
     public void onStart() {
         super.onStart();
         getControllerFactory().getAccentColorController().addAccentColorObserver(this);
-        if (LayoutSpec.isPhone(getActivity())) {
-            getControllerFactory().getOrientationController().addOrientationControllerObserver(this);
-        }
+        getControllerFactory().getOrientationController().addOrientationControllerObserver(this);
     }
 
     @Override
@@ -434,10 +430,6 @@ public class CameraFragment extends BaseFragment<CameraFragment.Container> imple
     }
 
     private void showCameraFeed() {
-        final Activity activity = getActivity();
-        if (activity != null && LayoutSpec.isTablet(activity)) {
-            ViewUtils.lockCurrentOrientation(activity, SquareOrientation.PORTRAIT_STRAIGHT);
-        }
         ViewUtils.fadeInView(cameraTopControl, cameraControlAnimationDuration);
         if (cameraPreview != null) {
             cameraPreview.setVisibility(View.VISIBLE);
@@ -446,9 +438,6 @@ public class CameraFragment extends BaseFragment<CameraFragment.Container> imple
     }
 
     private void hideCameraFeed() {
-        if (LayoutSpec.isTablet(getActivity())) {
-            ViewUtils.unlockOrientation(getActivity());
-        }
         ViewUtils.fadeOutView(cameraTopControl, cameraControlAnimationDuration);
         if (cameraPreview != null) {
             cameraPreview.setVisibility(View.GONE);

@@ -42,7 +42,6 @@ import com.waz.zclient.controllers._
 import com.waz.zclient.controllers.calling.ICallingController
 import com.waz.zclient.controllers.camera.ICameraController
 import com.waz.zclient.controllers.confirmation.IConfirmationController
-import com.waz.zclient.controllers.currentfocus.IFocusController
 import com.waz.zclient.controllers.deviceuser.IDeviceUserController
 import com.waz.zclient.controllers.drawing.IDrawingController
 import com.waz.zclient.controllers.giphy.IGiphyController
@@ -108,7 +107,6 @@ object WireApplication {
     bind [ICameraController]             toProvider controllerFactory.getCameraController
     bind [ICallingController]            toProvider controllerFactory.getCallingController
     bind [IConfirmationController]       toProvider controllerFactory.getConfirmationController
-    bind [IFocusController]              toProvider controllerFactory.getFocusController
 
     bind [IStoreFactory]                 toProvider storeFactory
     bind [INetworkStore]                 toProvider storeFactory.networkStore

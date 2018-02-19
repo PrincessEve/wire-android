@@ -230,7 +230,7 @@ class CurrentCallController(implicit inj: Injector, cxt: WireContext) extends In
     case false => ButtonSettings(R.string.glyph__speaker_loud, R.string.incoming__controls__ongoing__speaker, () => speakerButton.press())
   }
 
-  val isTablet = Signal(LayoutSpec.isTablet(cxt))
+  val isTablet = Signal(!LayoutSpec.isPhone(cxt))
 
   val rightButtonShown = convDegraded.flatMap {
     case true  => Signal(false)

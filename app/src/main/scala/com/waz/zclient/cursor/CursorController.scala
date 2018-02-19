@@ -28,8 +28,8 @@ import com.waz.ZLog.ImplicitTag._
 import com.waz.api._
 import com.waz.content.UserPreferences
 import com.waz.model.{ConversationData, MessageData}
-import com.waz.service.ZMessaging
 import com.waz.permissions.PermissionsService
+import com.waz.service.ZMessaging
 import com.waz.threading.{CancellableFuture, Threading}
 import com.waz.utils.events.{EventContext, EventStream, Signal}
 import com.waz.zclient.common.controllers._
@@ -44,10 +44,8 @@ import com.waz.zclient.core.stores.network.{DefaultNetworkAction, INetworkStore}
 import com.waz.zclient.messages.MessageBottomSheetDialog.MessageAction
 import com.waz.zclient.messages.controllers.MessageActionsController
 import com.waz.zclient.pages.extendedcursor.ExtendedCursorContainer
-import com.waz.zclient.pages.main.profile.camera.CameraContext
 import com.waz.zclient.ui.cursor.{CursorMenuItem => JCursorMenuItem}
 import com.waz.zclient.ui.utils.KeyboardUtils
-import com.waz.zclient.utils.LayoutSpec
 import com.waz.zclient.{Injectable, Injector, R}
 
 import scala.concurrent.duration._
@@ -167,21 +165,16 @@ class CursorController(implicit inj: Injector, ctx: Context, evc: EventContext) 
     case KeyboardState.ExtendedCursor(tpe) =>
       KeyboardUtils.closeKeyboardIfShown(activity)
 
-      if (LayoutSpec.isTablet(ctx) && tpe == ExtendedCursorContainer.Type.IMAGES) {
-        cameraController.openCamera(CameraContext.MESSAGE)
-        keyboard ! KeyboardState.Hidden
-      } else {
-        permissions.requestAllPermissions(keyboardPermissions(tpe)).map {
-          case true => cursorCallback.foreach(_.openExtendedCursor(tpe))
-          case _ =>
-            //TODO error message?
-            keyboard ! KeyboardState.Hidden
-        } (Threading.Ui)
-      }
+      permissions.requestAllPermissions(keyboardPermissions(tpe)).map {
+        case true => cursorCallback.foreach(_.openExtendedCursor(tpe))
+        case _ =>
+          //TODO error message?
+          keyboard ! KeyboardState.Hidden
+      } (Threading.Ui)
   }
 
   editHasFocus {
-    case true => cursorCallback.foreach(_.onFocusChange(true))
+    case true => // TODO - reimplement for tablets
     case false => // ignore
   }
 
@@ -320,6 +313,5 @@ trait CursorCallback {
   def onMessageSent(msg: MessageData): Unit
   def onCursorButtonLongPressed(cursorMenuItem: JCursorMenuItem): Unit
   def onMotionEventFromCursorButton(cursorMenuItem: JCursorMenuItem, motionEvent: MotionEvent): Unit
-  def onFocusChange(hasFocus: Boolean): Unit
   def onCursorClicked(): Unit
 }

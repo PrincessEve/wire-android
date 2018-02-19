@@ -31,7 +31,6 @@ import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.core.stores.network.NetworkAction;
 import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.participants.OptionsMenuFragment;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.ViewUtils;
 
 public class PendingConnectRequestManagerFragment extends BaseFragment<PendingConnectRequestManagerFragment.Container> implements PendingConnectRequestFragment.Container,
@@ -102,9 +101,7 @@ public class PendingConnectRequestManagerFragment extends BaseFragment<PendingCo
 
     @Override
     public void dismissSingleUserProfile() {
-        if (LayoutSpec.isPhone(getActivity()) &&
-            getChildFragmentManager().popBackStackImmediate()) {
-
+        if (getChildFragmentManager().popBackStackImmediate()) {
             restoreCurrentPageAfterClosingOverlay();
         }
     }

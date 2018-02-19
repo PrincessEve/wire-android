@@ -51,7 +51,6 @@ import com.waz.zclient.R;
 import com.waz.zclient.common.controllers.ThemeController;
 import com.waz.zclient.common.views.UserDetailsView;
 import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
-import com.waz.zclient.controllers.currentfocus.IFocusController;
 import com.waz.zclient.controllers.globallayout.KeyboardVisibilityObserver;
 import com.waz.zclient.conversation.ConversationController;
 import com.waz.zclient.core.stores.connect.ConnectStoreObserver;
@@ -65,7 +64,6 @@ import com.waz.zclient.ui.text.AccentColorEditText;
 import com.waz.zclient.ui.utils.KeyboardUtils;
 import com.waz.zclient.ui.utils.MathUtils;
 import com.waz.zclient.utils.Callback;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.e2ee.ShieldView;
 
@@ -76,7 +74,6 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
                                                                                                             ConnectStoreObserver,
                                                                                                             AccentColorObserver {
     public static final String TAG = ParticipantHeaderFragment.class.getName();
-    private static final String ARG_USER_REQUESTER = "ARG_USER_REQUESTER";
 
     private Toolbar toolbar;
     private TextView membersCountTextView;
@@ -86,17 +83,12 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
     private View bottomBorder;
     private TextView penIcon;
     private ShieldView shieldView;
-    private IConnectStore.UserRequester userRequester;
 
     private ConversationController convController;
     private ParticipantsController participantsController;
 
-    public static ParticipantHeaderFragment newInstance(IConnectStore.UserRequester userRequester) {
-        ParticipantHeaderFragment participantHeaderFragment = new ParticipantHeaderFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_USER_REQUESTER, userRequester);
-        participantHeaderFragment.setArguments(args);
-        return participantHeaderFragment;
+    public static ParticipantHeaderFragment newInstance() {
+        return new ParticipantHeaderFragment();
     }
 
     @Override
@@ -115,13 +107,6 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
         } else {
             return super.onCreateAnimation(transit, enter, nextAnim);
         }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Bundle args = getArguments();
-        userRequester = (IConnectStore.UserRequester) args.getSerializable(ARG_USER_REQUESTER);
     }
 
     @Override
@@ -152,22 +137,12 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
         bottomBorder.setVisibility(View.GONE);
 
 
-        if (LayoutSpec.isTablet(getContext())) {
-            toolbar.setNavigationIcon(null);
-            toolbar.setContentInsetsAbsolute(toolbar.getContentInsetEnd(),
-                                             getResources().getDimensionPixelSize(R.dimen.content__padding_left));
-        } else {
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (userRequester == IConnectStore.UserRequester.POPOVER) {
-                        getContainer().dismissDialog();
-                    } else {
-                        getControllerFactory().getConversationScreenController().hideParticipants(true, false);
-                    }
-                }
-            });
-        }
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getControllerFactory().getConversationScreenController().hideParticipants(true, false);
+            }
+        });
 
         return rootView;
     }
@@ -176,13 +151,7 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
     @Override
     public void onStart() {
         super.onStart();
-        if (userRequester == IConnectStore.UserRequester.POPOVER) {
-            getStoreFactory().connectStore().addConnectRequestObserver(this);
-            final User user = getStoreFactory().singleParticipantStore().getUser();
-            getStoreFactory().connectStore().loadUser(user.getId(), userRequester);
-        } else {
-            getStoreFactory().participantsStore().addParticipantsStoreObserver(this);
-        }
+        getStoreFactory().participantsStore().addParticipantsStoreObserver(this);
         getControllerFactory().getConversationScreenController().addConversationControllerObservers(this);
         getControllerFactory().getAccentColorController().addAccentColorObserver(this);
 
@@ -369,15 +338,9 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
         @Override
         public boolean onEditorAction(final TextView textView, int actionId, KeyEvent event) {
             if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-
-                if (LayoutSpec.isPhone(getActivity())) {
-                    renameConversation();
-                }
-
+                renameConversation();
                 closeHeaderEditing();
-
                 return true;
-
             }
             return false;
         }
@@ -449,15 +412,7 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
     }
 
     @Override
-    public void onHideParticipants(boolean orButtonPressed,
-                                   boolean hideByConversationChange,
-                                   boolean backOrButtonPressed) {
-
-        if (LayoutSpec.isTablet(getActivity()) &&
-            !hideByConversationChange) {
-            renameConversation();
-        }
-    }
+    public void onHideParticipants(boolean orButtonPressed, boolean hideByConversationChange, boolean backOrButtonPressed) {}
 
     @Override
     public void onShowEditConversationName(boolean edit) {
@@ -534,7 +489,7 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
     }
 
     public void onConnectUserUpdated(final User user, IConnectStore.UserRequester usertype) {
-        if (usertype != userRequester) {
+        if (usertype != IConnectStore.UserRequester.PARTICIPANTS) {
             return;
         }
         setParticipant(user);
@@ -583,7 +538,6 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
                         headerEditText.setText(headerReadOnlyTextView.getText());
                         headerEditText.setAlpha(1);
                         headerEditText.requestFocus();
-                        getControllerFactory().getFocusController().setFocus(IFocusController.CONVERSATION_EDIT_NAME);
                         headerEditText.setSelection(headerEditText.getText().length());
                         KeyboardUtils.showKeyboard(getActivity());
                         headerReadOnlyTextView.setAlpha(0);
@@ -596,10 +550,6 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
                         headerEditText.clearFocus();
                         membersCountTextView.setAlpha(1);
                         penIcon.setVisibility(View.VISIBLE);
-
-                        if (LayoutSpec.isTablet(getActivity())) {
-                            renameConversation();
-                        }
                     }
                 }
             }
@@ -607,7 +557,5 @@ public class ParticipantHeaderFragment extends BaseFragment<ParticipantHeaderFra
     }
 
     public interface Container {
-
-        void dismissDialog();
     }
 }

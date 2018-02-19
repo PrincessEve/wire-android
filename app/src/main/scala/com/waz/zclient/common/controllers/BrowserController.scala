@@ -27,6 +27,8 @@ import com.waz.utils.events.EventStream
 import com.waz.utils.wrappers.{AndroidURIUtil, URI}
 import com.waz.zclient.utils.IntentUtils
 
+import scala.util.Try
+
 class BrowserController(implicit context: Context) {
 
   val onYoutubeLinkOpened = EventStream[MessageId]()
@@ -35,7 +37,9 @@ class BrowserController(implicit context: Context) {
     if (uri.getScheme == null) uri.buildUpon().scheme("http").build()
     else uri.normalizeScheme()
 
-  def openUrl(uri: URI) = LoggedTry {
+  def openUrl(uri: String): Try[Unit] = openUrl(AndroidURIUtil.parse(uri))
+
+  def openUrl(uri: URI): Try[Unit] = LoggedTry {
     val intent = new Intent(Intent.ACTION_VIEW, normalizeHttp(AndroidURIUtil.unwrap(uri)))
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     context.startActivity(intent)

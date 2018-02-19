@@ -17,7 +17,6 @@
  */
 package com.waz.zclient.pages.main.connect;
 
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -40,14 +39,11 @@ import com.waz.zclient.core.stores.connect.ConnectStoreObserver;
 import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.pages.main.participants.ProfileAnimation;
-import com.waz.zclient.pages.main.participants.ProfileTabletAnimation;
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
-import com.waz.zclient.ui.theme.ThemeUtils;
 import com.waz.zclient.ui.utils.KeyboardUtils;
 import com.waz.zclient.ui.views.ZetaButton;
 import com.waz.zclient.utils.Callback;
 import com.waz.zclient.utils.ContextUtils;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.images.ImageAssetImageView;
 import com.waz.zclient.views.menus.FooterMenu;
@@ -115,19 +111,13 @@ public class PendingConnectRequestFragment extends BaseFragment<PendingConnectRe
                 int duration;
                 int delay = 0;
                 if (nextAnim != 0) {
-                    if (LayoutSpec.isTablet(getActivity())) {
-                        animation = new ProfileTabletAnimation(enter,
-                                                               getResources().getInteger(R.integer.framework_animation_duration_long),
-                                                               getResources().getDimensionPixelSize(R.dimen.participant_dialog__initial_width));
+                    if (enter) {
+                        duration = getResources().getInteger(R.integer.open_profile__animation_duration);
+                        delay = getResources().getInteger(R.integer.open_profile__delay);
                     } else {
-                        if (enter) {
-                            duration = getResources().getInteger(R.integer.open_profile__animation_duration);
-                            delay = getResources().getInteger(R.integer.open_profile__delay);
-                        } else {
-                            duration = getResources().getInteger(R.integer.close_profile__animation_duration);
-                        }
-                        animation = new ProfileAnimation(enter, duration, delay, centerX, centerY);
+                        duration = getResources().getInteger(R.integer.close_profile__animation_duration);
                     }
+                    animation = new ProfileAnimation(enter, duration, delay, centerX, centerY);
                 }
             }
         }
@@ -161,7 +151,6 @@ public class PendingConnectRequestFragment extends BaseFragment<PendingConnectRe
         imageAssetImageViewProfile.setDisplayType(ImageAssetImageView.DisplayType.CIRCLE);
         imageAssetImageViewProfile.setSaturation(0);
 
-        updateToolbarNavigationIcon();
         if (userRequester == IConnectStore.UserRequester.PARTICIPANTS) {
             toolbar.setBackground(null);
         }
@@ -170,9 +159,6 @@ public class PendingConnectRequestFragment extends BaseFragment<PendingConnectRe
             public void onClick(View v) {
                 switch (userRequester) {
                     case CONVERSATION:
-                        if (LayoutSpec.isTablet(getContext()) && ContextUtils.isInLandscape(getContext())) {
-                            return;
-                        }
                         getActivity().onBackPressed();
                         KeyboardUtils.closeKeyboardIfShown(getActivity());
                         break;
@@ -405,38 +391,6 @@ public class PendingConnectRequestFragment extends BaseFragment<PendingConnectRe
     public void onAccentColorHasChanged(Object sender, int color) {
         unblockButton.setIsFilled(false);
         unblockButton.setAccentColor(color);
-    }
-
-    private void updateToolbarNavigationIcon() {
-        updateToolbarNavigationIcon(null);
-    }
-
-    private void updateToolbarNavigationIcon(Configuration newConfig) {
-        if (LayoutSpec.isPhone(getContext())) {
-            return;
-        }
-        if (userRequester == IConnectStore.UserRequester.CONVERSATION &&
-            (ContextUtils.isInLandscape(getContext()) ||
-             (newConfig != null && ContextUtils.isInLandscape(newConfig)))) {
-            toolbar.setNavigationIcon(null);
-        } else {
-            switch (userRequester) {
-                case CONVERSATION:
-                    if (ThemeUtils.isDarkTheme(getContext())) {
-                        toolbar.setNavigationIcon(R.drawable.ic_action_menu_light);
-                    } else {
-                        toolbar.setNavigationIcon(R.drawable.ic_action_menu_dark);
-                    }
-                    break;
-                default:
-                    if (ThemeUtils.isDarkTheme(getContext())) {
-                        toolbar.setNavigationIcon(R.drawable.action_back_light);
-                    } else {
-                        toolbar.setNavigationIcon(R.drawable.action_back_dark);
-                    }
-                    break;
-            }
-        }
     }
 
     @Override

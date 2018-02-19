@@ -29,6 +29,7 @@ import android.support.v4.app.{Fragment, FragmentManager, FragmentTransaction}
 import android.support.v7.widget.Toolbar
 import android.view.{MenuItem, View, ViewGroup}
 import android.widget._
+import com.waz.ZLog.ImplicitTag._
 import com.waz.api.ImageAsset
 import com.waz.content.GlobalPreferences.CurrentAccountPref
 import com.waz.content.{GlobalPreferences, UserPreferences}
@@ -38,12 +39,11 @@ import com.waz.utils.events.Signal
 import com.waz.utils.returning
 import com.waz.zclient.Intents._
 import com.waz.zclient.common.controllers.global.AccentColorController
-import com.waz.ZLog.ImplicitTag._
 import com.waz.zclient.common.views.AccountTabsView
 import com.waz.zclient.controllers.accentcolor.AccentColorChangeRequester
 import com.waz.zclient.pages.main.profile.camera.{CameraContext, CameraFragment}
 import com.waz.zclient.preferences.pages.{DevicesBackStackKey, OptionsView, ProfileBackStackKey}
-import com.waz.zclient.utils.{BackStackNavigator, LayoutSpec, RingtoneUtils, ViewUtils}
+import com.waz.zclient.utils.{BackStackNavigator, RingtoneUtils, ViewUtils}
 import com.waz.zclient.{ActivityHelper, BaseActivity, MainActivity, R}
 
 class PreferencesActivity extends BaseActivity
@@ -70,7 +70,7 @@ class PreferencesActivity extends BaseActivity
     getSupportActionBar.setDisplayHomeAsUpEnabled(true)
     getSupportActionBar.setDisplayShowHomeEnabled(true)
 
-    if (LayoutSpec.isPhone(this)) ViewUtils.lockScreenOrientation(Configuration.ORIENTATION_PORTRAIT, this)
+    ViewUtils.lockScreenOrientation(Configuration.ORIENTATION_PORTRAIT, this)
     if (savedInstanceState == null) {
       backStackNavigator.setup(findViewById(R.id.content).asInstanceOf[ViewGroup])
 

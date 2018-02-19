@@ -21,11 +21,9 @@ import android.app.Activity;
 import android.view.View;
 
 import com.waz.zclient.controllers.accentcolor.IAccentColorController;
-import com.waz.zclient.controllers.background.IDialogBackgroundImageController;
 import com.waz.zclient.controllers.calling.ICallingController;
 import com.waz.zclient.controllers.camera.ICameraController;
 import com.waz.zclient.controllers.confirmation.IConfirmationController;
-import com.waz.zclient.controllers.currentfocus.IFocusController;
 import com.waz.zclient.controllers.deviceuser.IDeviceUserController;
 import com.waz.zclient.controllers.drawing.IDrawingController;
 import com.waz.zclient.controllers.giphy.IGiphyController;
@@ -33,7 +31,6 @@ import com.waz.zclient.controllers.globallayout.IGlobalLayoutController;
 import com.waz.zclient.controllers.location.ILocationController;
 import com.waz.zclient.controllers.navigation.INavigationController;
 import com.waz.zclient.controllers.orientation.IOrientationController;
-import com.waz.zclient.controllers.password.IPasswordController;
 import com.waz.zclient.controllers.singleimage.ISingleImageController;
 import com.waz.zclient.controllers.usernames.IUsernamesController;
 import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
@@ -50,8 +47,6 @@ public interface IControllerFactory {
   INavigationController getNavigationController();
 
   IOrientationController getOrientationController();
-
-  IFocusController getFocusController();
 
   IGiphyController getGiphyController();
 
@@ -71,11 +66,7 @@ public interface IControllerFactory {
 
   void setGlobalLayout(View globalLayoutView);
 
-  IPasswordController getPasswordController();
-
   ISlidingPaneController getSlidingPaneController();
-
-  IDialogBackgroundImageController getDialogBackgroundImageController();
 
   IAccentColorController getAccentColorController();
 

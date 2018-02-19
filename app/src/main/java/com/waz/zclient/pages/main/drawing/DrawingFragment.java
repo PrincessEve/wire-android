@@ -19,7 +19,6 @@ package com.waz.zclient.pages.main.drawing;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.hardware.Sensor;
@@ -65,7 +64,6 @@ import com.waz.zclient.ui.views.CursorIconButton;
 import com.waz.zclient.ui.views.SketchEditText;
 import com.waz.zclient.utils.Callback;
 import com.waz.zclient.utils.ContextUtils;
-import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.utils.debug.ShakeEventListener;
 
@@ -407,14 +405,6 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
                 SensorManager.SENSOR_DELAY_NORMAL);
         getControllerFactory().getGlobalLayoutController().addKeyboardVisibilityObserver(this);
         getControllerFactory().getAccentColorController().addAccentColorObserver(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (LayoutSpec.isTablet(getActivity())) {
-            ViewUtils.lockScreenOrientation(Configuration.ORIENTATION_PORTRAIT, getActivity());
-        }
     }
 
     @Override

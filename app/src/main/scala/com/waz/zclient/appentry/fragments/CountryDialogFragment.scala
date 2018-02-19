@@ -22,13 +22,13 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.view.{LayoutInflater, View}
-import android.widget.{Adapter, AdapterView, ListView}
+import android.widget.{AdapterView, ListView}
 import com.waz.zclient.appentry.controllers.SignInController
+import com.waz.zclient.appentry.fragments.CountryDialogFragment._
 import com.waz.zclient.newreg.fragments.country.{CountryCodeAdapter, CountryController}
 import com.waz.zclient.pages.BaseDialogFragment
 import com.waz.zclient.utils.ViewUtils
 import com.waz.zclient.{FragmentHelper, R}
-import CountryDialogFragment._
 
 object CountryDialogFragment {
   val TAG  = classOf[CountryDialogFragment].getName

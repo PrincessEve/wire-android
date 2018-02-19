@@ -19,7 +19,6 @@ package com.waz.zclient.controllers.navigation;
 
 import android.content.Context;
 import android.os.Bundle;
-import com.waz.zclient.utils.LayoutSpec;
 import timber.log.Timber;
 
 import java.util.HashSet;
@@ -46,7 +45,6 @@ public class NavigationController implements INavigationController {
 
     private boolean isPagerEnabled;
     private boolean isInLandscape;
-    private boolean isPhone;
 
     @Override
     public void addNavigationControllerObserver(NavigationControllerObserver navigationControllerObserver) {
@@ -70,8 +68,6 @@ public class NavigationController implements INavigationController {
     }
 
     public NavigationController(Context context) {
-        isPhone = LayoutSpec.isPhone(context);
-
         navigationControllerObservers = new HashSet<>();
         pagerControllerObservers = new HashSet<>();
 
@@ -134,14 +130,8 @@ public class NavigationController implements INavigationController {
     }
 
     private void setPage(Page page, String sender, int pageIndex) {
-        if (isPhone) {
-            if (currentPagerPos == pageIndex) {
-                setVisiblePage(page, sender);
-            }
-        } else {
-            if (currentPagerPos == pageIndex || isInLandscape) {
-                setVisiblePage(page, sender);
-            }
+        if (currentPagerPos == pageIndex) {
+            setVisiblePage(page, sender);
         }
     }
 
@@ -196,12 +186,8 @@ public class NavigationController implements INavigationController {
     public void setPagerSettingForPage(Page page) {
         switch (page) {
             case CONVERSATION_LIST:
-                if (isPhone) {
-                    setPagerEnabled(false);
-                    return;
-                }
-                setPagerEnabled(true);
-                break;
+                setPagerEnabled(false);
+                return;
             case SELF_PROFILE_OVERLAY:
             case CAMERA:
             case CONFIRMATION_DIALOG:
@@ -222,9 +208,7 @@ public class NavigationController implements INavigationController {
             case BLOCK_USER:
             case PICK_USER_ADD_TO_CONVERSATION:
             case INTEGRATION_DETAILS:
-                if (isPhone) {
-                    setPagerEnabled(false);
-                }
+                setPagerEnabled(false);
                 break;
             default:
                 setPagerEnabled(true);
