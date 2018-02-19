@@ -28,6 +28,7 @@ import com.waz.ZLog._
 import com.waz.api.User.ConnectionStatus._
 import com.waz.api._
 import com.waz.model._
+import com.waz.model.otr.ClientId
 import com.waz.threading.Threading
 import com.waz.utils.events.Subscription
 import com.waz.utils.returning
@@ -222,7 +223,7 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
       case _ =>
     }
 
-  override def onShowOtrClient(otrClient: OtrClient, user: User): Unit =
+  def showOtrClient(userId: UserId, clientId: ClientId): Unit =
     getChildFragmentManager
       .beginTransaction
       .setCustomAnimations(
@@ -233,24 +234,7 @@ class ParticipantFragment extends BaseFragment[ParticipantFragment.Container] wi
       )
       .add(
         R.id.fl__participant__overlay,
-        SingleOtrClientFragment.newInstance(otrClient, user),
-        SingleOtrClientFragment.TAG
-      )
-      .addToBackStack(SingleOtrClientFragment.TAG)
-      .commit
-
-  override def onShowCurrentOtrClient(): Unit =
-    getChildFragmentManager
-      .beginTransaction
-      .setCustomAnimations(
-        R.anim.open_profile,
-        R.anim.close_profile,
-        R.anim.open_profile,
-        R.anim.close_profile
-      )
-      .add(
-        R.id.fl__participant__overlay,
-        SingleOtrClientFragment.newInstance,
+        SingleOtrClientFragment.newInstance(userId, clientId),
         SingleOtrClientFragment.TAG
       )
       .addToBackStack(SingleOtrClientFragment.TAG)

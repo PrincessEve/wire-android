@@ -25,9 +25,7 @@ import android.support.v4.view.ViewPager
 import android.view.animation.{AlphaAnimation, Animation}
 import android.view.{LayoutInflater, View, ViewGroup}
 import com.waz.ZLog.ImplicitTag._
-import com.waz.api.impl.otr
 import com.waz.model.UserId
-import com.waz.service.ZMessaging
 import com.waz.threading.Threading
 import com.waz.utils._
 import com.waz.zclient.common.controllers.{BrowserController, ThemeController, UserAccountsController}
@@ -130,8 +128,10 @@ class TabbedParticipantBodyFragment extends FragmentHelper {
     participantOtrDeviceAdapter.onClientClick.onUi { client =>
       participantsController.otherParticipant.head.foreach {
         case Some(userId) =>
-          val otrClient = new otr.OtrClient(userId, client.id, client)(ZMessaging.currentUi)
-          screenController.showOtrClient(otrClient, getStoreFactory.pickUserStore.getUser(userId.str))
+          Option(getParentFragment).foreach {
+            case f: ParticipantFragment => f.showOtrClient(userId, client.id)
+            case _ =>
+          }
         case _ =>
       }
     }

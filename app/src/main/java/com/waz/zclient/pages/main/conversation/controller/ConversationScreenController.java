@@ -19,7 +19,6 @@ package com.waz.zclient.pages.main.conversation.controller;
 
 import android.view.View;
 import com.waz.api.Message;
-import com.waz.api.OtrClient;
 import com.waz.api.User;
 import com.waz.model.ConvId;
 import com.waz.model.IntegrationId;
@@ -95,11 +94,6 @@ public class ConversationScreenController implements IConversationScreenControll
     @Override
     public boolean shouldShowDevicesTab() {
         return showDevicesTabForUser != null;
-    }
-
-    @Override
-    public User getRequestedDeviceTabUser() {
-        return showDevicesTabForUser;
     }
 
     @Override
@@ -191,13 +185,6 @@ public class ConversationScreenController implements IConversationScreenControll
     @Override
     public DialogLaunchMode getPopoverLaunchMode() {
         return launchMode;
-    }
-
-    @Override
-    public void showCurrentOtrClient() {
-        for (ConversationScreenControllerObserver observer : conversationScreenControllerObservers) {
-            observer.onShowCurrentOtrClient();
-        }
     }
 
     @Override

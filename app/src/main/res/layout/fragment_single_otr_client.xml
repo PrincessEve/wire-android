@@ -104,7 +104,7 @@
             style="?userOtrDevice"
             />
 
-        <com.waz.zclient.views.e2ee.FingerprintView
+        <com.waz.zclient.ui.text.TypefaceTextView
             android:id="@+id/ttv__single_otr_client__id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
             style="?userOtrDevice"
             />
 
-        <com.waz.zclient.views.e2ee.FingerprintView
+        <com.waz.zclient.ui.text.TypefaceTextView
             android:id="@+id/ttv__single_otr_client__fingerprint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

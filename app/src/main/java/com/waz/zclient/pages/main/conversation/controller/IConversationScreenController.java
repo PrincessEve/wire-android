@@ -42,8 +42,6 @@ public interface IConversationScreenController {
 
     boolean shouldShowDevicesTab();
 
-    User getRequestedDeviceTabUser();
-
     boolean isShowingParticipant();
 
     void resetToMessageStream();
@@ -69,8 +67,6 @@ public interface IConversationScreenController {
     void showConversationMenu(boolean inConvList, ConvId convId);
 
     DialogLaunchMode getPopoverLaunchMode();
-
-    void showCurrentOtrClient();
 
     void hideOtrClient();
 

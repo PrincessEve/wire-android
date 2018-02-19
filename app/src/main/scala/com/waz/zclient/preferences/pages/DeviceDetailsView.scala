@@ -35,7 +35,7 @@ import com.waz.sync.SyncResult
 import com.waz.threading.Threading
 import com.waz.utils.events.{EventContext, EventStream, Signal}
 import com.waz.utils.returning
-import com.waz.zclient.common.controllers.global.PasswordController
+import com.waz.zclient.common.controllers.global.{ClientsController, PasswordController}
 import com.waz.zclient.preferences.DevicesPreferencesUtil
 import com.waz.zclient.preferences.dialogs.RemoveDeviceDialog
 import com.waz.zclient.preferences.views.{SwitchPreference, TextButton}
@@ -175,39 +175,26 @@ case class DeviceDetailsViewController(view: DeviceDetailsView, clientId: Client
   val zms      = inject[Signal[ZMessaging]]
   val passwordController = inject[PasswordController]
   val backStackNavigator = inject[BackStackNavigator]
+  val clientsController = inject[ClientsController]
 
   val accountManager =  ZMessaging.currentAccounts.activeAccountManager.collect{case Some(a) => a}
 
-  val otrClientsService = accountManager.flatMap(_.userModule).map(_.clientsService)
+  val client = clientsController.selfClient(clientId).collect { case Some(c) => c }
+  val isCurrentClient = clientsController.isCurrentClient(clientId)
+  val fingerPrint = clientsController.selfFingerprint(clientId)
+  val model = client.map(_.model)
 
-  val clientAndIsSelf = for {
-    manager      <- accountManager
-    accData      <- manager.accountData
-    Some(userId) <- manager.userId
-    clients      <- manager.storage.otrClientsStorage.signal(userId)
-  } yield (clients.clients.get(clientId), accData.clientId.contains(clientId))
-
-  val client = clientAndIsSelf.map(_._1)
-
-  val fingerprint = for {
-    c       <- clientAndIsSelf
-    manager <- accountManager
-    Some(userId) <- manager.userId
-    fp      <- manager.fingerprintSignal(userId, clientId).map(_.map(new String(_))).orElse(Signal.const(None))
-  } yield fp
-
-  fingerprint.onUi{ _.foreach(view.setFingerPrint) }
-
-  clientAndIsSelf.onUi {
-    case (Some(c), self) =>
-      view.setName(c.model)
-      view.setId(c.displayId)
-      view.setActivated(c.regTime.getOrElse(Instant.EPOCH), c.regLocation)
-      view.setActionsVisible(!self)
-    case _ =>
+  client.map(_.model).onUi(view.setName)
+  client.map(_.displayId).onUi(view.setId)
+  client.map(c => (c.regTime.getOrElse(Instant.EPOCH), c.regLocation)).onUi { case (t, l) =>
+    view.setActivated(t, l)
   }
 
-  client.map(_.exists(_.isVerified)).onUi(view.setVerified)
+  isCurrentClient.map(!_).onUi(view.setActionsVisible)
+  client.map(_.isVerified).onUi(view.setVerified)
+  fingerPrint.onUi{ _.foreach(view.setFingerPrint) }
+
+  val otrClientsService = accountManager.flatMap(_.userModule).map(_.clientsService)
 
   view.onVerifiedChecked { checked =>
     for {
@@ -255,8 +242,8 @@ case class DeviceDetailsViewController(view: DeviceDetailsView, clientId: Client
   }
 
   private def showRemoveDeviceDialog(error: Option[String] = None): Unit = {
-    client.map(_.map(_.model)).head.map { n =>
-      val fragment = returning(RemoveDeviceDialog.newInstance(n.getOrElse(""), error))(_.onDelete(removeDevice))
+    model.head.map { n =>
+      val fragment = returning(RemoveDeviceDialog.newInstance(n, error))(_.onDelete(removeDevice))
       context.asInstanceOf[BaseActivity]
         .getSupportFragmentManager
         .beginTransaction
